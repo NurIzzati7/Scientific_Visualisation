@@ -29,16 +29,85 @@ page = st.sidebar.radio(
     ]
 )
 
-# Home Page
-if page == "Home":
-    st.header("Project Overview")
 
+if page == "Home":
+    st.title("📊 Scientific Visualisation of Malaysian Data")
+    st.markdown(
+        "### Interactive Data Analytics Dashboard | Malaysia"
+    )
     st.write(
-        "This project analyses three Malaysian datasets "
-        "using Python and data visualisation techniques."
+        "Explore Malaysia's maternal health, life expectancy, "
+        "and household income through interactive scientific visualisations."
     )
 
-    st.info("Select an analysis from the sidebar to explore the data.")
+    st.divider()
+
+    # Dashboard overview
+    st.subheader("📌 Dashboard Overview")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.metric("📁 Datasets", "3")
+
+    with col2:
+        st.metric("📊 Visualisations", "9")
+
+    with col3:
+        st.metric("📍 Coverage", "Malaysia")
+
+    st.divider()
+
+    # Dataset introduction
+    st.subheader("🔎 Explore the Datasets")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        with st.container(border=True):
+            st.markdown("### 🩺 Maternal Death")
+            st.caption("2000–2025")
+            st.write(
+                "Explore maternal death trends, mortality rates, "
+                "and state comparisons in Malaysia."
+            )
+
+    with col2:
+        with st.container(border=True):
+            st.markdown("### 👥 Life Expectancy")
+            st.caption("2022–2026")
+            st.write(
+                "Compare life expectancy across states, "
+                "genders, and ethnic groups."
+            )
+
+    with col3:
+        with st.container(border=True):
+            st.markdown("### 💰 Household Income")
+            st.caption("2019, 2022 & 2024")
+            st.write(
+                "Analyse household income trends, "
+                "state differences, and income percentiles."
+            )
+
+    st.divider()
+
+    # Project information
+    st.subheader("ℹ️ About This Project")
+
+    st.write(
+        "This dashboard was developed using Python, Streamlit, "
+        "and Plotly to visualise three Malaysian datasets "
+        "sourced from the Department of Statistics Malaysia (DOSM). "
+        "It supports interactive exploration of socioeconomic "
+        "and demographic patterns."
+    )
+
+    st.info(
+        "👈 Select an analysis from the sidebar to explore "
+        "the interactive visualisations."
+    )
+
 
 # Maternal Death Page
 elif page == "Maternal Death Analysis":
