@@ -217,12 +217,7 @@ if page == "Home":
 
     st.markdown("""
     <div class="home-about">
-        This dashboard was developed using
-        <b>Python, Streamlit, and Plotly</b> to visualise
-        three Malaysian datasets sourced from the
-        <b>Department of Statistics Malaysia (DOSM)</b>.
-        It supports interactive exploration of
-        socioeconomic and demographic patterns.
+        This dashboard was developed using Python, Streamlit, and Plotly to visualise three Malaysian datasets sourced from the Department of Statistics Malaysia (DOSM). It features three interactive visualisations: a line chart for maternal mortality, a grouped bar chart for life expectancy, and a bubble chart for household income. The dashboard supports data exploration and comparisons across Malaysian states, demographic groups, years, and income percentiles.
     </div>
     """, unsafe_allow_html=True)
 
