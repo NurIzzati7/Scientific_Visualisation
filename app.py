@@ -408,158 +408,152 @@ elif page == "Maternal Death Analysis":
         )
 
 
+
 # Life Expectancy Page
 elif page == "Life Expectancy Analysis":
     st.header("Life Expectancy Analysis")
 
-    data_path = Path(__file__).resolve().parent / "datasets" / "life_expectancy_state_ethnic.csv"
+    # Objective Statement
+    st.info(
+        "Objective: To examine variations in life expectancy "
+        "across Malaysian states based on gender, ethnicity, and time."
+    )
+
+    # Dataset path
+    data_path = (
+        Path(__file__).resolve().parent
+        / "datasets"
+        / "life_expectancy_state_ethnic.csv"
+    )
+
     if not data_path.exists():
-        st.error("Dataset not found: datasets/life_expectancy_state_ethnic.csv")
+        st.error(
+            "Dataset not found: "
+            "datasets/life_expectancy_state_ethnic.csv"
+        )
         st.stop()
 
-    # Load life expectancy dataset
-    df_life = pd.read_csv(data_path)
+    # Load and prepare data
+    @st.cache_data
+    def load_life_data(path):
+        data = pd.read_csv(path)
 
-    # Display dataset preview
-    st.subheader("Life Expectancy Dataset Preview")
-    st.dataframe(df_life.head())
+        data["year"] = pd.to_datetime(
+            data["date"], errors="coerce"
+        ).dt.year
 
-    
-    # Prepare life expectancy data
-    df_life["year"] = pd.to_datetime(df_life["date"]).dt.year
+        data["life_expectancy"] = pd.to_numeric(
+            data["life_expectancy"], errors="coerce"
+        )
 
-    # Filter overall ethnicity to avoid duplicate comparisons
-    df_gender = df_life[
-        (df_life["ethnicity"] == "overall") &
-        (df_life["sex"].isin(["male", "female"]))
-    ].copy()
+        return data.dropna(
+            subset=[
+                "state",
+                "year",
+                "sex",
+                "ethnicity",
+                "life_expectancy"
+            ]
+        )
 
-    # Select analysis year
-    st.subheader("Life Expectancy by State and Gender")
+    df_life = load_life_data(data_path)
 
-    selected_year = st.selectbox(
-        "Select Year",
-        sorted(df_gender["year"].unique(), reverse=True)
-    )
+    # Data Filters
+    st.subheader("Data Filters")
 
-    filtered_gender = df_gender[
-        df_gender["year"] == selected_year
+    states = sorted(df_life["state"].unique().tolist())
+
+    default_states = [
+        s for s in ["Johor", "Selangor"]
+        if s in states
     ]
 
-    # Create interactive grouped bar chart
-    fig_gender = px.bar(
-        filtered_gender,
-        x="state",
-        y="life_expectancy",
-        color="sex",
-        barmode="group",
-        title=f"Life Expectancy by State and Gender ({selected_year})",
-        labels={
-            "state": "State",
-            "life_expectancy": "Life Expectancy (Years)",
-            "sex": "Gender"
-        },
-        color_discrete_map={
-            "male": "#80B3A2",
-            "female": "#E6A080"
-        }
+    selected_states = st.multiselect(
+        "Select State(s)",
+        states,
+        default=default_states
     )
 
-    fig_gender.update_layout(
-        xaxis_tickangle=-45,
-        template="plotly_dark"
+    genders = ["both", "male", "female"]
+    selected_gender = st.selectbox(
+        "Select Gender",
+        genders,
+        format_func=lambda x: {
+            "both": "Both Sexes",
+            "male": "Male",
+            "female": "Female"
+        }[x]
     )
 
-    st.plotly_chart(fig_gender, use_container_width=True)
+    ethnic_labels = {
+        "overall": "Overall",
+        "bumi_malay": "Bumiputera Malay",
+        "bumi_other": "Other Bumiputera",
+        "chinese": "Chinese",
+        "indian": "Indian"
+    }
 
-    
-    # Life Expectancy by Ethnic Group
-    st.subheader("Life Expectancy by Ethnic Group")
+    available_ethnicities = [
+        e for e in ethnic_labels
+        if e in df_life["ethnicity"].unique()
+    ]
 
-    # Filter data for both genders combined
-    df_ethnic = df_life[
-        df_life["sex"] == "both"
+    selected_ethnicity = st.selectbox(
+        "Select Ethnicity",
+        available_ethnicities,
+        format_func=lambda x: ethnic_labels[x]
+    )
+
+    years = sorted(
+        df_life["year"].astype(int).unique().tolist()
+    )
+
+    selected_years = st.slider(
+        "Select Year Range",
+        min(years),
+        max(years),
+        (min(years), max(years))
+    )
+
+    # Filter dataset
+    filtered = df_life[
+        df_life["state"].isin(selected_states)
+        & (df_life["sex"] == selected_gender)
+        & (df_life["ethnicity"] == selected_ethnicity)
+        & df_life["year"].between(*selected_years)
     ].copy()
 
-    # Select year for ethnic group analysis
-    ethnic_year = st.selectbox(
-        "Select Year for Ethnic Group Analysis",
-        sorted(df_ethnic["year"].unique(), reverse=True)
-    )
+    if filtered.empty:
+        st.warning(
+            "No data available for the selected filters. "
+            "Please choose another state, gender, "
+            "ethnicity, or year range."
+        )
 
-    # Select state
-    ethnic_state = st.selectbox(
-        "Select State for Ethnic Group Analysis",
-        sorted(df_ethnic["state"].unique())
-    )
+    else:
+        # Prepare data for visualization
+        chart_data = (
+            filtered.groupby(
+                ["state", "year"], as_index=False
+            )["life_expectancy"].mean()
+            .sort_values("year")
+        )
 
-   
-    # Filter selected year, state, and ethnic groups
-    filtered_ethnic = df_ethnic[
-        (df_ethnic["year"] == ethnic_year) &
-        (df_ethnic["state"] == ethnic_state) &
-        (df_ethnic["ethnicity"].isin([
-            "bumi_malay",
-            "bumi_other",
-            "chinese",
-            "indian"
-        ]))
-    ].copy()
+        # One Interactive Line Chart
+        st.subheader(
+            "Life Expectancy Trends Across Malaysian States"
+        )
 
-
-    # Create interactive bar chart
-    fig_ethnic = px.bar(
-        filtered_ethnic,
-        x="ethnicity",
-        y="life_expectancy",
-        color="ethnicity",
-        title=f"Life Expectancy by Ethnic Group in {ethnic_state} ({ethnic_year})",
-        labels={
-            "ethnicity": "Ethnic Group",
-            "life_expectancy": "Life Expectancy (Years)"
-        }
-    )
-
-    fig_ethnic.update_layout(
-        template="plotly_dark",
-        xaxis_tickangle=-30,
-        showlegend=False
-    )
-
-    st.plotly_chart(fig_ethnic, use_container_width=True)
-
-
-    
-    # Life Expectancy Trends Across States
-    st.subheader("Life Expectancy Trends Across States (2022–2026)")
-
-    # Use overall ethnicity and both sexes to avoid duplicates
-    df_trend = df_ethnic[
-        (df_ethnic["ethnicity"] == "overall") &
-        (df_ethnic["sex"] == "both")
-    ].copy()
-
-    df_trend["year"] = pd.to_datetime(df_trend["date"]).dt.year
-
-    # Select states
-    trend_states = st.multiselect(
-        "Select States for Trend Analysis",
-        sorted(df_trend["state"].dropna().unique()),
-        default=["Johor", "Selangor"]
-    )
-
-    filtered_trend = df_trend[
-        df_trend["state"].isin(trend_states)
-    ].copy()
-
-    if not filtered_trend.empty:
-        fig_trend = px.line(
-            filtered_trend.sort_values("year"),
+        fig = px.line(
+            chart_data,
             x="year",
             y="life_expectancy",
             color="state",
             markers=True,
-            title="Life Expectancy Trends by State",
+            title=(
+                "Life Expectancy Trends by State "
+                f"({selected_years[0]}–{selected_years[1]})"
+            ),
             labels={
                 "year": "Year",
                 "life_expectancy": "Life Expectancy (Years)",
@@ -567,18 +561,58 @@ elif page == "Life Expectancy Analysis":
             }
         )
 
-        fig_trend.update_xaxes(dtick=1)
-        fig_trend.update_layout(
+        fig.update_xaxes(dtick=1)
+
+        fig.update_layout(
             template="plotly_dark",
-            hovermode="x unified"
+            hovermode="x unified",
+            legend_title_text="State"
         )
 
         st.plotly_chart(
-            fig_trend,
+            fig,
             use_container_width=True
         )
-    else:
-        st.warning("Please select at least one state.")
+
+        # Summary Box
+        st.subheader("Summary Box")
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            st.metric(
+                "States Selected",
+                chart_data["state"].nunique()
+            )
+
+        with col2:
+            st.metric(
+                "Years Covered",
+                chart_data["year"].nunique()
+            )
+
+        with col3:
+            st.metric(
+                "Highest Life Expectancy",
+                f"{chart_data['life_expectancy'].max():.1f} years"
+            )
+
+        # Interpretation
+        st.subheader("Interpretation")
+
+        st.write(
+            "The interactive line chart illustrates changes "
+            "in life expectancy across selected Malaysian "
+            "states over time. Users can explore differences "
+            "based on gender and ethnicity through the "
+            "available filters. The visualisation highlights "
+            "variations between states and shows how life "
+            "expectancy changes throughout the selected period."
+        )
+
+        st.caption(
+            "Source: Department of Statistics Malaysia (DOSM)"
+        )
 
 
     
