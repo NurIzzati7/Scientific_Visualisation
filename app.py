@@ -735,6 +735,16 @@ elif page == "Household Income Analysis":
         )
 
     else:
+        # Check selected measurement and income values
+        st.write("Selected Measurement:", selected_measure)
+
+        st.write(
+            "Income Range (RM):",
+            f"{filtered['income'].min():,.2f}",
+            "to",
+            f"{filtered['income'].max():,.2f}"
+        )
+
         # Prepare heatmap data
         heatmap_data = filtered.pivot_table(
             index="state",
@@ -756,6 +766,8 @@ elif page == "Household Income Analysis":
             heatmap_data,
             aspect="auto",
             color_continuous_scale="Blues",
+            zmin=0,
+            zmax=df_income["income"].max(),
             title=(
                 "Household Income by State and Percentile "
                 f"({selected_year})"
