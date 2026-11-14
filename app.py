@@ -170,12 +170,19 @@ elif page == "Life Expectancy Analysis":
         sorted(df_ethnic["state"].unique())
     )
 
-    # Filter selected year and state
+   
+    # Filter selected year, state, and ethnic groups
     filtered_ethnic = df_ethnic[
         (df_ethnic["year"] == ethnic_year) &
         (df_ethnic["state"] == ethnic_state) &
-        (~df_ethnic["ethnicity"].isin(["overall", "bumi"]))
+        (df_ethnic["ethnicity"].isin([
+            "bumi_malay",
+            "bumi_other",
+            "chinese",
+            "indian"
+        ]))
     ].copy()
+
 
     # Create interactive bar chart
     fig_ethnic = px.bar(
