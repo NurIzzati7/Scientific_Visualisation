@@ -508,57 +508,43 @@ if percentile_mode.startswith("Key Percentiles"):
     ].copy()
 
 
+  
     # Create interactive grouped bar chart
     if not df_dist.empty:
         df_dist = df_dist.sort_values("percentile")
 
-        
+        fig_dist = px.bar(
+            df_dist,
+            x="percentile",
+            y="income",
+            color="state",
+            barmode="group",
+            title=f"Household Income by Percentile ({dist_year})",
+            labels={
+                "percentile": "Income Percentile",
+                "income": "Household Income (RM)",
+                "state": "State"
+            },
+            hover_data=["variable"]
+        )
 
-    # Check filtered dataset
-    st.write("Number of rows:", len(df_dist))
-    st.write(
-        "Number of percentiles:",
-        df_dist["percentile"].nunique()
-    )
-    st.dataframe(df_dist.head(10))
+        fig_dist.update_layout(
+            template="plotly_dark",
+            xaxis=dict(
+                tickmode="array",
+                tickvals=sorted(df_dist["percentile"].unique())
+            ),
+            yaxis_title="Household Income (RM)",
+            legend_title="State",
+            height=600
+        )
 
-   
-    # Create interactive bar chart
-    fig_dist = px.bar(
-        df_dist,
-        x="percentile",
-        y="income",
-        color="state",
-        barmode="group",
-        title=f"Household Income by Percentile ({dist_year})",
-        labels={
-            "percentile": "Income Percentile",
-            "income": "Household Income (RM)",
-            "state": "State"
-        },
-        hover_data=["variable"]
-    )
-
-    fig_dist.update_layout(
-        template="plotly_dark",
-        xaxis=dict(
-            tickmode="array",
-            tickvals=sorted(df_dist["percentile"].unique())
-        ),
-        yaxis_title="Household Income (RM)",
-        legend_title="State",
-        height=600
-    )
-
-    st.plotly_chart(
-        fig_dist,
-        use_container_width=True
-    )
-
+        st.plotly_chart(
+            fig_dist,
+            use_container_width=True
+        )
 
     else:
-        st.warning(
-            "No data available for selected filters."
-        )
+        st.warning("No data available for selected filters.")
 
 
