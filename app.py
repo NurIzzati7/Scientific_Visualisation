@@ -458,115 +458,116 @@ elif page == "Life Expectancy Analysis":
 
     df_life = load_life_data(data_path)
 
+    
     # Data Filters
     st.subheader("Data Filters")
-
-    states = sorted(df_life["state"].unique().tolist())
-
-    default_states = [
-        s for s in ["Johor", "Selangor"]
-        if s in states
-    ]
-
-    selected_states = st.multiselect(
-        "Select State(s)",
-        states,
-        default=default_states
-    )
-
-    genders = ["both", "male", "female"]
-    selected_gender = st.selectbox(
-        "Select Gender",
-        genders,
-        format_func=lambda x: {
-            "both": "Both Sexes",
-            "male": "Male",
-            "female": "Female"
-        }[x]
-    )
-
-    ethnic_labels = {
-        "overall": "Overall",
-        "bumi_malay": "Bumiputera Malay",
-        "bumi_other": "Other Bumiputera",
-        "chinese": "Chinese",
-        "indian": "Indian"
-    }
-
-    available_ethnicities = [
-        e for e in ethnic_labels
-        if e in df_life["ethnicity"].unique()
-    ]
-
-    selected_ethnicity = st.selectbox(
-        "Select Ethnicity",
-        available_ethnicities,
-        format_func=lambda x: ethnic_labels[x]
-    )
 
     years = sorted(
         df_life["year"].astype(int).unique().tolist()
     )
 
-    selected_years = st.slider(
-        "Select Year Range",
-        min(years),
-        max(years),
-        (min(years), max(years))
+    selected_year = st.selectbox(
+        "Select Year",
+        years,
+        index=len(years) - 1
     )
 
-    # Filter dataset
-    filtered = df_life[
-        df_life["state"].isin(selected_states)
-        & (df_life["sex"] == selected_gender)
-        & (df_life["ethnicity"] == selected_ethnicity)
-        & df_life["year"].between(*selected_years)
-    ].copy()
+    states = sorted(df_life["state"].unique().tolist())
+
+    selected_states = st.multiselect(
+        "Select State(s)",
+        states,
+        default=[
+            s for s in ["Johor", "Selangor", "Melaka"]
+            if s in states
+        ]
+    )
+
+    comparison_type = st.selectbox(
+        "Select Comparison Type",
+        ["Gender", "Ethnicity"]
+    )
+
+    # Filter data according to comparison type
+    if comparison_type == "Gender":
+        filtered = df_life[
+            (df_life["year"] == selected_year)
+            & df_life["state"].isin(selected_states)
+            & (df_life["ethnicity"] == "overall")
+            & df_life["sex"].isin(["male", "female"])
+        ].copy()
+
+        category = "sex"
+        chart_title = (
+            f"Life Expectancy by State and Gender ({selected_year})"
+        )
+
+    else:
+        filtered = df_life[
+            (df_life["year"] == selected_year)
+            & df_life["state"].isin(selected_states)
+            & (df_life["sex"] == "both")
+            & df_life["ethnicity"].isin([
+                "bumi_malay",
+                "bumi_other",
+                "chinese",
+                "indian"
+            ])
+        ].copy()
+
+        category = "ethnicity"
+        chart_title = (
+            f"Life Expectancy by State and Ethnicity ({selected_year})"
+        )
+
+        ethnic_labels = {
+            "bumi_malay": "Bumiputera Malay",
+            "bumi_other": "Other Bumiputera",
+            "chinese": "Chinese",
+            "indian": "Indian"
+        }
+
+        filtered["ethnicity"] = (
+            filtered["ethnicity"].replace(ethnic_labels)
+        )
 
     if filtered.empty:
         st.warning(
             "No data available for the selected filters. "
-            "Please choose another state, gender, "
-            "ethnicity, or year range."
+            "Please choose another year or state."
         )
 
     else:
-        # Prepare data for visualization
+        # Prepare chart data
         chart_data = (
             filtered.groupby(
-                ["state", "year"], as_index=False
+                ["state", category], as_index=False
             )["life_expectancy"].mean()
-            .sort_values("year")
         )
 
-        # One Interactive Line Chart
-        st.subheader(
-            "Life Expectancy Trends Across Malaysian States"
-        )
+        # One Interactive Grouped Bar Chart
+        st.subheader("Life Expectancy Comparison")
 
-        fig = px.line(
+        fig = px.bar(
             chart_data,
-            x="year",
+            x="state",
             y="life_expectancy",
-            color="state",
-            markers=True,
-            title=(
-                "Life Expectancy Trends by State "
-                f"({selected_years[0]}–{selected_years[1]})"
-            ),
+            color=category,
+            barmode="group",
+            title=chart_title,
             labels={
-                "year": "Year",
+                "state": "State",
                 "life_expectancy": "Life Expectancy (Years)",
-                "state": "State"
+                "sex": "Gender",
+                "ethnicity": "Ethnic Group"
             }
         )
 
-        fig.update_xaxes(dtick=1)
-
         fig.update_layout(
             template="plotly_dark",
-            hovermode="x unified",
-            legend_title_text="State"
+            xaxis_tickangle=-45,
+            legend_title_text=comparison_type,
+            height=600
         )
 
         st.plotly_chart(
@@ -587,8 +588,8 @@ elif page == "Life Expectancy Analysis":
 
         with col2:
             st.metric(
-                "Years Covered",
-                chart_data["year"].nunique()
+                "Comparison Type",
+                comparison_type
             )
 
         with col3:
@@ -601,13 +602,14 @@ elif page == "Life Expectancy Analysis":
         st.subheader("Interpretation")
 
         st.write(
-            "The interactive line chart illustrates changes "
-            "in life expectancy across selected Malaysian "
-            "states over time. Users can explore differences "
-            "based on gender and ethnicity through the "
-            "available filters. The visualisation highlights "
-            "variations between states and shows how life "
-            "expectancy changes throughout the selected period."
+            "The grouped bar chart compares life expectancy "
+            "across selected Malaysian states based on "
+            f"{comparison_type.lower()} in {selected_year}. "
+            "The interactive filters allow users to examine "
+            "differences between demographic groups and "
+            "explore changes across different years. "
+            "The visualisation highlights variations in "
+            "life expectancy between states and population groups."
         )
 
         st.caption(
