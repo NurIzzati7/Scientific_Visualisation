@@ -789,6 +789,16 @@ elif page == "Household Income Analysis":
             }
         )
 
+        # Show exact income values when hovering over heatmap
+        fig.update_traces(
+            hovertemplate=(
+                "State: %{y}<br>"
+                "Income Percentile: P%{x}<br>"
+                "Household Income: RM %{z:,.2f}"
+                "<extra></extra>"
+            )
+        )
+
         fig.update_layout(
             template="plotly_dark",
             height=650,
