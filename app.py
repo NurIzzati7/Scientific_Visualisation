@@ -280,3 +280,72 @@ elif page == "Household Income Analysis":
 
     st.write("Dataset columns:", df_income.columns.tolist())
 
+
+    # Interactive Household Income by State
+    st.subheader("Household Income by State")
+
+    df_income["year"] = pd.to_datetime(
+        df_income["date"]
+    ).dt.year
+
+    # Select year
+    income_year = st.selectbox(
+        "Select Year for Income Analysis",
+        sorted(df_income["year"].dropna().unique(), reverse=True)
+    )
+
+    # Select percentile
+    income_percentile = st.selectbox(
+        "Select Income Percentile",
+        sorted(df_income["percentile"].dropna().unique()),
+        index=0
+    )
+
+    # Select measurement
+    income_measure = st.selectbox(
+        "Select Income Measurement",
+        ["mean", "median"]
+    )
+
+    # Filter data
+    filtered_income = df_income[
+        (df_income["year"] == income_year) &
+        (df_income["percentile"] == income_percentile) &
+        (df_income["variable"] == income_measure)
+    ].copy()
+
+    filtered_income["income"] = pd.to_numeric(
+        filtered_income["income"], errors="coerce"
+    )
+    filtered_income = filtered_income.dropna(subset=["income"])
+
+    if not filtered_income.empty:
+        filtered_income = filtered_income.sort_values("income")
+
+        fig_income = px.bar(
+            filtered_income,
+            x="income",
+            y="state",
+            orientation="h",
+            title=f"Household Income by State ({income_year})",
+            labels={
+                "income": "Household Income (RM)",
+                "state": "State"
+            },
+            color="income",
+            color_continuous_scale="Blues"
+        )
+
+        fig_income.update_layout(
+            template="plotly_dark",
+            height=650
+        )
+
+        st.plotly_chart(
+            fig_income,
+            use_container_width=True
+        )
+    else:
+        st.warning("No data available for selected filters.")
+
+
