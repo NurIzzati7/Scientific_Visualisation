@@ -24,83 +24,227 @@ page = st.sidebar.radio(
 )
 
 
+
 if page == "Home":
-    st.title("📊 Scientific Visualisation of Malaysian Data")
-    st.markdown(
-        "### Interactive Data Analytics Dashboard | Malaysia"
-    )
-    st.write(
-        "Explore Malaysia's maternal health, life expectancy, "
-        "and household income through interactive scientific visualisations."
-    )
 
-    st.divider()
+    # HOME PAGE STYLING
+    st.markdown("""
+    <style>
+    .home-hero {
+        background: linear-gradient(120deg, #172554, #1e293b);
+        padding: 32px;
+        border-radius: 16px;
+        border: 1px solid #334155;
+        margin-bottom: 25px;
+    }
 
-    # Dashboard overview
+    .home-hero h1 {
+        color: #ffffff;
+        font-size: 34px;
+        margin-bottom: 12px;
+    }
+
+    .home-hero p {
+        color: #cbd5e1;
+        font-size: 16px;
+        margin-bottom: 0;
+    }
+
+    .home-kpi {
+        background: #1e293b;
+        padding: 24px;
+        border-radius: 14px;
+        border: 1px solid #334155;
+        text-align: center;
+        min-height: 140px;
+    }
+
+    .home-kpi-value {
+        color: #ffffff;
+        font-size: 32px;
+        font-weight: 700;
+    }
+
+    .home-kpi-label {
+        color: #94a3b8;
+        font-size: 14px;
+    }
+
+    .home-dataset {
+        background: #1e293b;
+        padding: 22px;
+        border-radius: 14px;
+        border: 1px solid #334155;
+        min-height: 215px;
+    }
+
+    .home-dataset h3 {
+        color: #ffffff;
+        font-size: 21px;
+        margin-bottom: 10px;
+    }
+
+    .home-dataset p {
+        color: #cbd5e1;
+        font-size: 14px;
+    }
+
+    .home-tag {
+        display: inline-block;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        margin-bottom: 12px;
+    }
+
+    .home-about {
+        background: #1e293b;
+        padding: 22px;
+        border-radius: 14px;
+        border: 1px solid #334155;
+        color: #cbd5e1;
+    }
+
+    .home-footer {
+        text-align: center;
+        color: #94a3b8;
+        font-size: 13px;
+        padding: 18px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # HERO SECTION
+    st.markdown("""
+    <div class="home-hero">
+        <h1>📊 Scientific Visualisation of Malaysian Data</h1>
+        <p>
+            Interactive Data Analytics Dashboard | Malaysia
+        </p>
+        <p style="margin-top: 12px;">
+            Explore maternal health, life expectancy, and
+            household income through interactive visualisations.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # DASHBOARD OVERVIEW
     st.subheader("📌 Dashboard Overview")
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.metric("📁 Datasets", "3")
+        st.markdown("""
+        <div class="home-kpi">
+            <div class="home-kpi-value">3</div>
+            <div class="home-kpi-label">📁 Datasets</div>
+        </div>
+        """, unsafe_allow_html=True)
 
     with col2:
-        st.metric("📊 Visualisations", "9")
+        st.markdown("""
+        <div class="home-kpi">
+            <div class="home-kpi-value">9</div>
+            <div class="home-kpi-label">📊 Visualisations</div>
+        </div>
+        """, unsafe_allow_html=True)
 
     with col3:
-        st.metric("📍 Coverage", "Malaysia")
+        st.markdown("""
+        <div class="home-kpi">
+            <div class="home-kpi-value">Malaysia</div>
+            <div class="home-kpi-label">📍 Data Coverage</div>
+        </div>
+        """, unsafe_allow_html=True)
 
+    st.write("")
     st.divider()
 
-    # Dataset introduction
+    # DATASET CARDS
     st.subheader("🔎 Explore the Datasets")
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        with st.container(border=True):
-            st.markdown("### 🩺 Maternal Death")
-            st.caption("2000–2025")
-            st.write(
-                "Explore maternal death trends, mortality rates, "
-                "and state comparisons in Malaysia."
-            )
+        st.markdown("""
+        <div class="home-dataset"
+             style="border-top: 4px solid #f87171;">
+            <h3>🩺 Maternal Death</h3>
+            <span class="home-tag"
+                  style="background:#450a0a;color:#fca5a5;">
+                2000–2025
+            </span>
+            <p>
+                Explore maternal death trends, mortality
+                rates, and differences across Malaysian states.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
 
     with col2:
-        with st.container(border=True):
-            st.markdown("### 👥 Life Expectancy")
-            st.caption("2022–2026")
-            st.write(
-                "Compare life expectancy across states, "
-                "genders, and ethnic groups."
-            )
+        st.markdown("""
+        <div class="home-dataset"
+             style="border-top: 4px solid #60a5fa;">
+            <h3>👥 Life Expectancy</h3>
+            <span class="home-tag"
+                  style="background:#172554;color:#93c5fd;">
+                2022–2026
+            </span>
+            <p>
+                Compare life expectancy across states,
+                genders, and ethnic groups in Malaysia.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
 
     with col3:
-        with st.container(border=True):
-            st.markdown("### 💰 Household Income")
-            st.caption("2019, 2022 & 2024")
-            st.write(
-                "Analyse household income trends, "
-                "state differences, and income percentiles."
-            )
+        st.markdown("""
+        <div class="home-dataset"
+             style="border-top: 4px solid #34d399;">
+            <h3>💰 Household Income</h3>
+            <span class="home-tag"
+                  style="background:#064e3b;color:#a7f3d0;">
+                2019, 2022 & 2024
+            </span>
+            <p>
+                Analyse household income trends,
+                state differences, and income percentiles.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
 
+    st.write("")
     st.divider()
 
-    # Project information
+    # ABOUT PROJECT
     st.subheader("ℹ️ About This Project")
 
-    st.write(
-        "This dashboard was developed using Python, Streamlit, "
-        "and Plotly to visualise three Malaysian datasets "
-        "sourced from the Department of Statistics Malaysia (DOSM). "
-        "It supports interactive exploration of socioeconomic "
-        "and demographic patterns."
-    )
+    st.markdown("""
+    <div class="home-about">
+        This dashboard was developed using
+        <b>Python, Streamlit, and Plotly</b> to visualise
+        three Malaysian datasets sourced from the
+        <b>Department of Statistics Malaysia (DOSM)</b>.
+        It supports interactive exploration of
+        socioeconomic and demographic patterns.
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.write("")
 
     st.info(
-        "👈 Select an analysis from the sidebar to explore "
-        "the interactive visualisations."
+        "👈 Select an analysis from the sidebar "
+        "to explore the interactive visualisations."
     )
+
+    # FOOTER
+    st.markdown("""
+    <div class="home-footer">
+        Data Source: DOSM |
+        Built with Python, Streamlit & Plotly
+    </div>
+    """, unsafe_allow_html=True)
+
 
 
 # Maternal Death Page
