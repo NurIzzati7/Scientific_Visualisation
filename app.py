@@ -256,3 +256,27 @@ elif page == "Life Expectancy Analysis":
         )
     else:
         st.warning("Please select at least one state.")
+
+
+    
+# Household Income Analysis Page
+elif page == "Household Income Analysis":
+    st.header("Household Income Analysis")
+
+    data_path = (
+        Path(__file__).resolve().parent
+        / "datasets"
+        / "hies_state_percentile.csv"
+    )
+
+    if not data_path.exists():
+        st.error("Household income dataset not found.")
+        st.stop()
+
+    df_income = pd.read_csv(data_path)
+
+    st.subheader("Household Income Dataset Preview")
+    st.dataframe(df_income.head())
+
+    st.write("Dataset columns:", df_income.columns.tolist())
+
