@@ -713,6 +713,18 @@ elif page == "Household Income Analysis":
         ]
     )
 
+    # Debug: Check measurement values
+    with st.expander("Check Income Measurement Data"):
+        st.write("Selected Measurement:", selected_measure)
+
+        comparison = df_income[
+            (df_income["year"] == selected_year)
+            & (df_income["state"] == "Johor")
+            & (df_income["percentile"] == 50)
+        ][["variable", "income"]]
+
+        st.dataframe(comparison)
+
     # Filter dataset
     filtered = df_income[
         (df_income["year"] == selected_year)
