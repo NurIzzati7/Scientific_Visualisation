@@ -205,3 +205,54 @@ elif page == "Life Expectancy Analysis":
 
     st.plotly_chart(fig_ethnic, use_container_width=True)
 
+
+    
+    # Life Expectancy Trends Across States
+    st.subheader("Life Expectancy Trends Across States (2022–2026)")
+
+    # Use overall ethnicity and both sexes to avoid duplicates
+    df_trend = df_ethnic[
+        (df_ethnic["ethnicity"] == "overall") &
+        (df_ethnic["sex"] == "both")
+    ].copy()
+
+    df_trend["year"] = pd.to_datetime(df_trend["date"]).dt.year
+
+    # Select states
+    trend_states = st.multiselect(
+        "Select States for Trend Analysis",
+        sorted(df_trend["state"].dropna().unique()),
+        default=["Johor", "Selangor"]
+    )
+
+    filtered_trend = df_trend[
+        df_trend["state"].isin(trend_states)
+    ].copy()
+
+    if not filtered_trend.empty:
+        fig_trend = px.line(
+            filtered_trend.sort_values("year"),
+            x="year",
+            y="life_expectancy",
+            color="state",
+            markers=True,
+            title="Life Expectancy Trends by State",
+            labels={
+                "year": "Year",
+                "life_expectancy": "Life Expectancy (Years)",
+                "state": "State"
+            }
+        )
+
+        fig_trend.update_xaxes(dtick=1)
+        fig_trend.update_layout(
+            template="plotly_dark",
+            hovermode="x unified"
+        )
+
+        st.plotly_chart(
+            fig_trend,
+            use_container_width=True
+        )
+    else:
+        st.warning("Please select at least one state.")
