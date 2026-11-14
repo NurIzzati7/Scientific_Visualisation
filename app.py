@@ -491,20 +491,22 @@ if percentile_mode.startswith("Key Percentiles"):
     ].copy()
 
 
-    # Filter selected percentiles
+# Convert percentile to numeric
+df_dist["percentile"] = pd.to_numeric(
+    df_dist["percentile"], errors="coerce"
+)
+
+# Remove missing values
+df_dist = df_dist.dropna(
+    subset=["income", "percentile"]
+)
+
+# Filter selected percentiles
 if percentile_mode.startswith("Key Percentiles"):
     df_dist = df_dist[
         df_dist["percentile"].isin([10, 25, 50, 75, 90])
     ].copy()
 
-    
-    df_dist["percentile"] = pd.to_numeric(
-        df_dist["percentile"], errors="coerce"
-    )
-
-    df_dist = df_dist.dropna(
-        subset=["income", "percentile"]
-    )
 
     # Create interactive grouped bar chart
     if not df_dist.empty:
