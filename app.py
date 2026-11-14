@@ -172,11 +172,10 @@ if page == "Home":
             <h3>🩺 Maternal Death</h3>
             <span class="home-tag"
                   style="background:#450a0a;color:#fca5a5;">
-                2000–2025
+                2000–2025 | Interactive Line Chart
             </span>
             <p>
-                Explore maternal death trends, mortality
-                rates, and differences across Malaysian states.
+              Explore maternal mortality trends and differences across Malaysian states over time.
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -188,12 +187,10 @@ if page == "Home":
             <h3>👥 Life Expectancy</h3>
             <span class="home-tag"
                   style="background:#172554;color:#93c5fd;">
-                2022–2026
+                2022–2026 | Interactive Grouped Bar Chart
             </span>
             <p>
-                Compare life expectancy across states,
-                genders, and ethnic groups in Malaysia.
-            </p>
+                Compare life expectancy across Malaysian states by gender and ethnicity, with interactive year selection.
         </div>
         """, unsafe_allow_html=True)
 
@@ -204,11 +201,10 @@ if page == "Home":
             <h3>💰 Household Income</h3>
             <span class="home-tag"
                   style="background:#064e3b;color:#a7f3d0;">
-                2019, 2022 & 2024
+                2019, 2022 & 2024 | Interactive Bubble Chart
             </span>
             <p>
-                Analyse household income trends,
-                state differences, and income percentiles.
+               Explore household income differences across states and income percentiles using interactive year selection.
             </p>
         </div>
         """, unsafe_allow_html=True)
