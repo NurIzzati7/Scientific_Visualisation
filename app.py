@@ -466,6 +466,38 @@ elif page == "Household Income Analysis":
         df_dist["income"], errors="coerce"
     )
 
+    
+# Select percentile display mode
+percentile_mode = st.selectbox(
+    "Select Percentile Display",
+    [
+        "Key Percentiles (P10, P25, P50, P75, P90)",
+        "All Percentiles (P1-P100)"
+    ],
+    key="percentile_mode"
+)
+
+# Filter selected percentiles
+if percentile_mode.startswith("Key Percentiles"):
+    df_dist = df_dist[
+        df_dist["percentile"].isin([10, 25, 50, 75, 90])
+    ].copy()
+
+
+# Filter selected percentiles
+if percentile_mode.startswith("Key Percentiles"):
+    df_dist = df_dist[
+        df_dist["percentile"].isin([10, 25, 50, 75, 90])
+    ].copy()
+
+
+    # Filter selected percentiles
+if percentile_mode.startswith("Key Percentiles"):
+    df_dist = df_dist[
+        df_dist["percentile"].isin([10, 25, 50, 75, 90])
+    ].copy()
+
+    
     df_dist["percentile"] = pd.to_numeric(
         df_dist["percentile"], errors="coerce"
     )
