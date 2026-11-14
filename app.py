@@ -346,4 +346,79 @@ elif page == "Household Income Analysis":
     else:
         st.warning("No data available for selected filters.")
 
+    
+    # Household Income Trends
+    st.subheader("Household Income Trends Across States")
+
+    # Prepare year column
+    df_income["year"] = pd.to_datetime(
+        df_income["date"]
+    ).dt.year
+
+    # Select states
+    trend_states = st.multiselect(
+        "Select States for Income Trend",
+        sorted(df_income["state"].dropna().unique()),
+        default=["Johor", "Selangor"]
+    )
+
+    # Select percentile
+    trend_percentile = st.selectbox(
+        "Select Percentile for Income Trend",
+        sorted(df_income["percentile"].dropna().unique()),
+        index=0
+    )
+
+    # Select measurement
+    trend_measure = st.selectbox(
+        "Select Measurement for Income Trend",
+        ["mean", "median"]
+    )
+
+    # Filter selected data
+    income_trend = df_income[
+        (df_income["state"].isin(trend_states)) &
+        (df_income["percentile"] == trend_percentile) &
+        (df_income["variable"] == trend_measure)
+    ].copy()
+
+    income_trend["income"] = pd.to_numeric(
+        income_trend["income"], errors="coerce"
+    )
+
+    income_trend = income_trend.dropna(subset=["income"])
+
+    # Plot interactive line chart
+    if not income_trend.empty:
+        fig_income_trend = px.line(
+            income_trend.sort_values("year"),
+            x="year",
+            y="income",
+            color="state",
+            markers=True,
+            title="Household Income Trends by State",
+            labels={
+                "year": "Year",
+                "income": "Household Income (RM)",
+                "state": "State"
+            }
+        )
+
+        fig_income_trend.update_xaxes(
+            tickmode="array",
+            tickvals=sorted(income_trend["year"].unique())
+        )
+
+        fig_income_trend.update_layout(
+            template="plotly_dark",
+            hovermode="x unified"
+        )
+
+        st.plotly_chart(
+            fig_income_trend,
+            use_container_width=True
+        )
+    else:
+        st.warning("No income trend data available.")
+
 
