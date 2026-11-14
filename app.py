@@ -144,7 +144,7 @@ if page == "Home":
     with col2:
         st.markdown("""
         <div class="home-kpi">
-            <div class="home-kpi-value">9</div>
+            <div class="home-kpi-value">3</div>
             <div class="home-kpi-label">📊 Visualisations</div>
         </div>
         """, unsafe_allow_html=True)
