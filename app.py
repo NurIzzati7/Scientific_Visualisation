@@ -93,3 +93,11 @@ elif page == "Life Expectancy Analysis":
     if not data_path.exists():
         st.error("Dataset not found: datasets/life_expectancy_state_ethnic.csv")
         st.stop()
+
+    # Load life expectancy dataset
+    df_life = pd.read_csv(data_path)
+
+    # Display dataset preview
+    st.subheader("Life Expectancy Dataset Preview")
+    st.dataframe(df_life.head())
+
