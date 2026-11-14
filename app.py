@@ -512,6 +512,14 @@ if percentile_mode.startswith("Key Percentiles"):
     if not df_dist.empty:
         df_dist = df_dist.sort_values("percentile")
 
+        
+    # Check filtered dataset
+    st.write("Number of rows:", len(df_dist))
+    st.write("Number of percentiles:",
+            df_dist["percentile"].nunique())
+    st.dataframe(df_dist.head(10))
+
+        
         fig_dist = px.bar(
             df_dist,
             x="percentile",
