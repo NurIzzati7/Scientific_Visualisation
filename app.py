@@ -117,7 +117,7 @@ if page == "Home":
     # HERO SECTION
     st.markdown("""
     <div class="home-hero">
-        <h1>📊 Scientific Visualisation of Malaysian Data</h1>
+        <h1>📊 Malaysia Socioeconomic & Health Insights Dashboard</h1>
         <p>
             Interactive Data Analytics Dashboard | Malaysia
         </p>
