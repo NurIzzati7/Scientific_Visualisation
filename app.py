@@ -1,6 +1,7 @@
-
 import streamlit as st
 from pathlib import Path
+import pandas as pd
+import plotly.express as px
 
 st.set_page_config(
     page_title="Scientific Visualisation",
@@ -44,16 +45,45 @@ elif page == "Maternal Death Analysis":
     st.header("Maternal Death Analysis")
     st.write("Analysis Period: 2000–2025")
 
-    folder = Path("visualizations/maternal_death")
+    data_path = Path(__file__).resolve().parent / "datasets" / "death_maternal_state.csv"
+    if not data_path.exists():
+        st.error("Dataset not found: datasets/death_maternal_state.csv")
+        st.stop()
 
-    charts = [
-        "maternal_deaths_by_state.png",
-        "maternal_deaths_lineplot.png",
-        "maternal_death_rates_heatmap.png"
-    ]
+    @st.cache_data
+    def load_maternal_data(path):
+        data = pd.read_csv(path)
+        data["year"] = pd.to_datetime(data["date"], errors="coerce").dt.year
+        return data.dropna(subset=["state", "year"])
 
-    for chart in charts:
-        st.image(str(folder / chart), use_container_width=True)
+    df = load_maternal_data(data_path)
+    states = sorted(df["state"].unique().tolist())
+    selected_states = st.multiselect("Select State(s)", states, default=states)
+    years = sorted(df["year"].astype(int).unique().tolist())
+    selected_years = st.slider("Select Year Range", min(years), max(years), (min(years), max(years)))
+    measure = st.selectbox("Measurement", ["abs", "rate"],
+                           format_func=lambda v: "Number of Maternal Deaths" if v == "abs" else "Maternal Death Rate")
+    filtered = df[df["state"].isin(selected_states) & df["year"].between(*selected_years)].copy()
+    if filtered.empty:
+        st.warning("No data for this selection. Choose another state or year range.")
+    else:
+        label = "Number of Maternal Deaths" if measure == "abs" else "Maternal Death Rate"
+        st.subheader("Maternal Death Trends")
+        fig = px.line(filtered.sort_values("year"), x="year", y=measure, color="state",
+                      markers=True, labels={"year": "Year", measure: label, "state": "State"})
+        st.plotly_chart(fig, use_container_width=True)
+
+        st.subheader("Maternal Deaths by State")
+        if measure == "abs":
+            totals = filtered.groupby("state", as_index=False)["abs"].sum().sort_values("abs")
+            bar = px.bar(totals, x="abs", y="state", orientation="h",
+                         labels={"abs": "Total Maternal Deaths", "state": "State"})
+            st.plotly_chart(bar, use_container_width=True)
+        else:
+            st.caption("Rates should not be summed across years; the chart below shows yearly rates.")
+            heat = filtered.pivot_table(index="state", columns="year", values="rate", aggfunc="mean")
+            fig_heat = px.imshow(heat, aspect="auto", labels={"x": "Year", "y": "State", "color": "Rate"})
+            st.plotly_chart(fig_heat, use_container_width=True)
 
 # Life Expectancy Page
 elif page == "Life Expectancy Analysis":
