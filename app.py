@@ -513,27 +513,31 @@ if percentile_mode.startswith("Key Percentiles"):
         df_dist = df_dist.sort_values("percentile")
 
         
+
     # Check filtered dataset
     st.write("Number of rows:", len(df_dist))
-    st.write("Number of percentiles:",
-            df_dist["percentile"].nunique())
+    st.write(
+        "Number of percentiles:",
+        df_dist["percentile"].nunique()
+    )
     st.dataframe(df_dist.head(10))
 
-        
-        fig_dist = px.bar(
-            df_dist,
-            x="percentile",
-            y="income",
-            color="state",
-            barmode="group",
-            title=f"Household Income by Percentile ({dist_year})",
-            labels={
-                "percentile": "Income Percentile",
-                "income": "Household Income (RM)",
-                "state": "State"
-            },
-            hover_data=["variable"]
-        )
+    # Create interactive bar chart
+    fig_dist = px.bar(
+        df_dist,
+        x="percentile",
+        y="income",
+        color="state",
+        barmode="group",
+        title=f"Household Income by Percentile ({dist_year})",
+        labels={
+            "percentile": "Income Percentile",
+            "income": "Household Income (RM)",
+            "state": "State"
+        },
+        hover_data=["variable"]
+    )
+
 
         fig_dist.update_layout(
             template="plotly_dark",
