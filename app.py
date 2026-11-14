@@ -9,12 +9,6 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("Scientific Visualisation of Malaysian Data")
-
-st.write(
-    "An interactive dashboard exploring maternal deaths, "
-    "life expectancy, and household income in Malaysia."
-)
 
 # Sidebar navigation
 st.sidebar.title("Navigation")
