@@ -670,44 +670,26 @@ elif page == "Household Income Analysis":
 
     df_income = load_income_data(data_path)
 
+    
     # Data Filters
     st.subheader("Data Filters")
-
-    states = sorted(
-        df_income["state"].unique().tolist()
-    )
-
-    selected_states = st.multiselect(
-        "Select State(s)",
-        states,
-        default=[
-            s for s in ["Johor", "Selangor", "Melaka"]
-            if s in states
-        ]
-    )
 
     years = sorted(
         df_income["year"].astype(int).unique().tolist()
     )
 
-    selected_years = st.select_slider(
-        "Select Year Range",
-        options=years,
-        value=(years[0], years[-1])
+    selected_year = st.selectbox(
+        "Select Year",
+        years,
+        index=len(years) - 1
     )
 
-    percentiles = sorted(
-        df_income["percentile"].unique().tolist()
-    )
+    states = sorted(df_income["state"].unique().tolist())
 
-    selected_percentile = st.selectbox(
-        "Select Income Percentile",
-        percentiles,
-        index=(
-            percentiles.index(50)
-            if 50 in percentiles else 0
-        ),
-        format_func=lambda p: f"P{int(p)}"
+    selected_states = st.multiselect(
+        "Select State(s)",
+        states,
+        default=states
     )
 
     measures = sorted(
@@ -723,61 +705,73 @@ elif page == "Household Income Analysis":
         )
     )
 
+    percentile_mode = st.selectbox(
+        "Select Percentile Display",
+        [
+            "Key Percentiles (P10, P25, P50, P75, P90)",
+            "All Percentiles (P1–P100)"
+        ]
+    )
+
     # Filter dataset
     filtered = df_income[
-        df_income["state"].isin(selected_states)
-        & df_income["year"].between(*selected_years)
-        & (df_income["percentile"] == selected_percentile)
+        (df_income["year"] == selected_year)
+        & df_income["state"].isin(selected_states)
         & (df_income["variable"] == selected_measure)
     ].copy()
 
+    if percentile_mode.startswith("Key Percentiles"):
+        filtered = filtered[
+            filtered["percentile"].isin([10, 25, 50, 75, 90])
+        ]
+    else:
+        filtered = filtered[
+            filtered["percentile"].between(1, 100)
+        ]
+
     if filtered.empty:
         st.warning(
-            "No data available for the selected filters. "
-            "Please choose another state, year, "
-            "percentile or measurement."
+            "No data available for the selected filters."
         )
 
     else:
-        # Prepare data for visualization
-        chart_data = (
-            filtered.groupby(
-                ["state", "year"], as_index=False
-            )["income"].mean()
-            .sort_values("year")
+        # Prepare heatmap data
+        heatmap_data = filtered.pivot_table(
+            index="state",
+            columns="percentile",
+            values="income",
+            aggfunc="mean"
         )
 
-        # One Interactive Line Chart
+        heatmap_data = heatmap_data.reindex(
+            selected_states
+        )
+
+        # One Interactive Heatmap
         st.subheader(
-            "Household Income Trends Across Malaysian States"
+            "Household Income Distribution Across States"
         )
 
-        fig = px.line(
-            chart_data,
-            x="year",
-            y="income",
-            color="state",
-            markers=True,
+        fig = px.imshow(
+            heatmap_data,
+            aspect="auto",
+            color_continuous_scale="Blues",
             title=(
-                "Household Income Trends by State "
-                f"(P{int(selected_percentile)})"
+                "Household Income by State and Percentile "
+                f"({selected_year})"
             ),
             labels={
-                "year": "Year",
-                "income": "Household Income (RM)",
-                "state": "State"
+                "x": "Income Percentile",
+                "y": "State",
+                "color": "Income (RM)"
             }
-        )
-
-        fig.update_xaxes(
-            tickmode="array",
-            tickvals=years
         )
 
         fig.update_layout(
             template="plotly_dark",
-            hovermode="x unified",
-            legend_title_text="State"
+            height=650,
+            xaxis_title="Income Percentile",
+            yaxis_title="State"
         )
 
         st.plotly_chart(
@@ -793,33 +787,32 @@ elif page == "Household Income Analysis":
         with col1:
             st.metric(
                 "States Selected",
-                chart_data["state"].nunique()
+                filtered["state"].nunique()
             )
 
         with col2:
             st.metric(
-                "Years Covered",
-                chart_data["year"].nunique()
+                "Percentiles Displayed",
+                filtered["percentile"].nunique()
             )
 
         with col3:
             st.metric(
                 "Highest Household Income",
-                f"RM {chart_data['income'].max():,.2f}"
+                f"RM {filtered['income'].max():,.2f}"
             )
 
         # Interpretation
         st.subheader("Interpretation")
 
         st.write(
-            "The interactive line chart illustrates "
-            "household income trends across selected "
-            "Malaysian states over time. Users can explore "
-            "income differences by selecting different "
-            "income percentiles and measurements. "
-            "The visualisation highlights variations "
-            "between states and changes in household "
-            "income throughout the selected period."
+            "The heatmap illustrates household income "
+            "distribution across selected Malaysian states "
+            "and income percentiles. Darker colour intensities "
+            "represent higher household income values, "
+            "while lighter colours indicate lower values. "
+            "Users can explore income differences across "
+            "different years through the interactive filters."
         )
 
         st.caption(
