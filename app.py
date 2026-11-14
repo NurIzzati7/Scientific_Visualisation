@@ -766,8 +766,6 @@ elif page == "Household Income Analysis":
             heatmap_data,
             aspect="auto",
             color_continuous_scale="Blues",
-            zmin=0,
-            zmax=df_income["income"].max(),
             title=(
                 "Household Income by State and Percentile "
                 f"({selected_year})"
