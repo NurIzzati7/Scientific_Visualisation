@@ -422,96 +422,112 @@ elif page == "Household Income Analysis":
         st.warning("No income trend data available.")
 
 
-    
     # Household Income Distribution by Percentile
     st.subheader("Household Income Distribution by Percentile")
 
+    # Prepare independent dataset
+    df_percentile = df_income.copy()
+
+    df_percentile["year"] = pd.to_datetime(
+        df_percentile["date"], errors="coerce"
+    ).dt.year
+
+    df_percentile["percentile"] = pd.to_numeric(
+        df_percentile["percentile"], errors="coerce"
+    )
+
+    df_percentile["income"] = pd.to_numeric(
+        df_percentile["income"], errors="coerce"
+    )
+
+    df_percentile = df_percentile.dropna(
+        subset=["year", "state", "percentile", "income"]
+    )
+
     # Select year
+    available_years = sorted(
+        df_percentile["year"].unique().astype(int).tolist(),
+        reverse=True
+    )
+
+    if not available_years:
+        st.warning("No valid income data available.")
+        st.stop()
+
     dist_year = st.selectbox(
         "Select Year for Percentile Analysis",
-        sorted(df_income["year"].dropna().unique(), reverse=True),
-        key="dist_year"
+        available_years,
+        key="dist_year_v3"
     )
 
     # Select states
     available_states = sorted(
-        df_income["state"].dropna().unique()
+        df_percentile["state"].dropna().unique().tolist()
     )
+
+    default_states = [
+        state for state in
+        ["Johor", "Selangor", "Melaka"]
+        if state in available_states
+    ]
 
     dist_states = st.multiselect(
         "Select States for Percentile Comparison",
         available_states,
-        default=[
-            state for state in ["Johor", "Selangor"]
-            if state in available_states
-        ],
-        key="dist_states"
+        default=default_states,
+        key="dist_states_v3"
     )
 
     # Select measurement
+    available_measures = sorted(
+        df_percentile["variable"].dropna().unique().tolist()
+    )
+
+    default_measure = (
+        available_measures.index("median")
+        if "median" in available_measures else 0
+    )
+
     dist_measure = st.selectbox(
         "Select Measurement for Percentile Analysis",
-        ["mean", "median"],
-        key="dist_measure"
+        available_measures,
+        index=default_measure,
+        key="dist_measure_v3"
     )
 
-    # Filter dataset
-    df_dist = df_income[
-        (df_income["year"] == dist_year) &
-        (df_income["state"].isin(dist_states)) &
-        (df_income["variable"] == dist_measure)
-    ].copy()
-
-    df_dist["income"] = pd.to_numeric(
-        df_dist["income"], errors="coerce"
+    # Select percentile display
+    percentile_mode = st.selectbox(
+        "Select Percentile Display",
+        [
+            "Key Percentiles (P10, P25, P50, P75, P90)",
+            "All Percentiles (P1-P100)"
+        ],
+        key="percentile_mode_v3"
     )
 
-    
-# Select percentile display mode
-percentile_mode = st.selectbox(
-    "Select Percentile Display",
-    [
-        "Key Percentiles (P10, P25, P50, P75, P90)",
-        "All Percentiles (P1-P100)"
-    ],
-    key="percentile_mode"
-)
-
-# Filter selected percentiles
-if percentile_mode.startswith("Key Percentiles"):
-    df_dist = df_dist[
-        df_dist["percentile"].isin([10, 25, 50, 75, 90])
+    # Filter year, state and measurement
+    df_dist = df_percentile[
+        (df_percentile["year"] == dist_year) &
+        (df_percentile["state"].isin(dist_states)) &
+        (df_percentile["variable"] == dist_measure)
     ].copy()
 
+    # Apply percentile filter only for key mode
+    if percentile_mode.startswith("Key Percentiles"):
+        df_dist = df_dist[
+            df_dist["percentile"].isin([10, 25, 50, 75, 90])
+        ].copy()
+    else:
+        df_dist = df_dist[
+            df_dist["percentile"].between(1, 100)
+        ].copy()
 
-# Filter selected percentiles
-if percentile_mode.startswith("Key Percentiles"):
-    df_dist = df_dist[
-        df_dist["percentile"].isin([10, 25, 50, 75, 90])
-    ].copy()
-
-
-# Convert percentile to numeric
-df_dist["percentile"] = pd.to_numeric(
-    df_dist["percentile"], errors="coerce"
-)
-
-# Remove missing values
-df_dist = df_dist.dropna(
-    subset=["income", "percentile"]
-)
-
-# Filter selected percentiles
-if percentile_mode.startswith("Key Percentiles"):
-    df_dist = df_dist[
-        df_dist["percentile"].isin([10, 25, 50, 75, 90])
-    ].copy()
-
-
-  
-    # Create interactive grouped bar chart
+    # Create chart
     if not df_dist.empty:
-        df_dist = df_dist.sort_values("percentile")
+
+        df_dist = df_dist.sort_values(
+            ["percentile", "state"]
+        )
 
         fig_dist = px.bar(
             df_dist,
@@ -528,23 +544,50 @@ if percentile_mode.startswith("Key Percentiles"):
             hover_data=["variable"]
         )
 
+        # Improve chart layout
         fig_dist.update_layout(
             template="plotly_dark",
-            xaxis=dict(
-                tickmode="array",
-                tickvals=sorted(df_dist["percentile"].unique())
-            ),
+            xaxis_title="Income Percentile",
             yaxis_title="Household Income (RM)",
             legend_title="State",
-            height=600
+            height=650,
+            hovermode="closest"
         )
+
+        if percentile_mode.startswith("Key Percentiles"):
+            fig_dist.update_xaxes(
+                tickmode="array",
+                tickvals=[10, 25, 50, 75, 90]
+            )
+        else:
+            fig_dist.update_xaxes(
+                tickmode="linear",
+                tick0=1,
+                dtick=5,
+                range=[0, 101]
+            )
 
         st.plotly_chart(
             fig_dist,
             use_container_width=True
         )
 
+        # Optional dataset information
+        with st.expander("View Filtered Dataset"):
+            st.write("Number of rows:", len(df_dist))
+            st.write(
+                "Number of percentiles:",
+                df_dist["percentile"].nunique()
+            )
+            st.dataframe(df_dist)
+
     else:
-        st.warning("No data available for selected filters.")
+        st.warning(
+            "No data available for the selected filters. "
+            "Please select another year, state or measurement."
+        )
 
 
+
+    
+   
