@@ -149,3 +149,52 @@ elif page == "Life Expectancy Analysis":
 
     st.plotly_chart(fig_gender, use_container_width=True)
 
+    
+    # Life Expectancy by Ethnic Group
+    st.subheader("Life Expectancy by Ethnic Group")
+
+    # Filter data for both genders combined
+    df_ethnic = df_life[
+        df_life["sex"] == "both"
+    ].copy()
+
+    # Select year for ethnic group analysis
+    ethnic_year = st.selectbox(
+        "Select Year for Ethnic Group Analysis",
+        sorted(df_ethnic["year"].unique(), reverse=True)
+    )
+
+    # Select state
+    ethnic_state = st.selectbox(
+        "Select State for Ethnic Group Analysis",
+        sorted(df_ethnic["state"].unique())
+    )
+
+    # Filter selected year and state
+    filtered_ethnic = df_ethnic[
+        (df_ethnic["year"] == ethnic_year) &
+        (df_ethnic["state"] == ethnic_state) &
+        (~df_ethnic["ethnicity"].isin(["overall", "bumi"]))
+    ].copy()
+
+    # Create interactive bar chart
+    fig_ethnic = px.bar(
+        filtered_ethnic,
+        x="ethnicity",
+        y="life_expectancy",
+        color="ethnicity",
+        title=f"Life Expectancy by Ethnic Group in {ethnic_state} ({ethnic_year})",
+        labels={
+            "ethnicity": "Ethnic Group",
+            "life_expectancy": "Life Expectancy (Years)"
+        }
+    )
+
+    fig_ethnic.update_layout(
+        template="plotly_dark",
+        xaxis_tickangle=-30,
+        showlegend=False
+    )
+
+    st.plotly_chart(fig_ethnic, use_container_width=True)
+
