@@ -278,8 +278,6 @@ elif page == "Household Income Analysis":
     st.subheader("Household Income Dataset Preview")
     st.dataframe(df_income.head())
 
-    st.write("Dataset columns:", df_income.columns.tolist())
-
 
     # Interactive Household Income by State
     st.subheader("Household Income by State")
