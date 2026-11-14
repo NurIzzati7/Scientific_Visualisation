@@ -101,3 +101,51 @@ elif page == "Life Expectancy Analysis":
     st.subheader("Life Expectancy Dataset Preview")
     st.dataframe(df_life.head())
 
+    
+    # Prepare life expectancy data
+    df_life["year"] = pd.to_datetime(df_life["date"]).dt.year
+
+    # Filter overall ethnicity to avoid duplicate comparisons
+    df_gender = df_life[
+        (df_life["ethnicity"] == "overall") &
+        (df_life["sex"].isin(["male", "female"]))
+    ].copy()
+
+    # Select analysis year
+    st.subheader("Life Expectancy by State and Gender")
+
+    selected_year = st.selectbox(
+        "Select Year",
+        sorted(df_gender["year"].unique(), reverse=True)
+    )
+
+    filtered_gender = df_gender[
+        df_gender["year"] == selected_year
+    ]
+
+    # Create interactive grouped bar chart
+    fig_gender = px.bar(
+        filtered_gender,
+        x="state",
+        y="life_expectancy",
+        color="sex",
+        barmode="group",
+        title=f"Life Expectancy by State and Gender ({selected_year})",
+        labels={
+            "state": "State",
+            "life_expectancy": "Life Expectancy (Years)",
+            "sex": "Gender"
+        },
+        color_discrete_map={
+            "male": "#80B3A2",
+            "female": "#E6A080"
+        }
+    )
+
+    fig_gender.update_layout(
+        xaxis_tickangle=-45,
+        template="plotly_dark"
+    )
+
+    st.plotly_chart(fig_gender, use_container_width=True)
+
