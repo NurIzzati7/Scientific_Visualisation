@@ -422,3 +422,96 @@ elif page == "Household Income Analysis":
         st.warning("No income trend data available.")
 
 
+    
+    # Household Income Distribution by Percentile
+    st.subheader("Household Income Distribution by Percentile")
+
+    # Select year
+    dist_year = st.selectbox(
+        "Select Year for Percentile Analysis",
+        sorted(df_income["year"].dropna().unique(), reverse=True),
+        key="dist_year"
+    )
+
+    # Select states
+    available_states = sorted(
+        df_income["state"].dropna().unique()
+    )
+
+    dist_states = st.multiselect(
+        "Select States for Percentile Comparison",
+        available_states,
+        default=[
+            state for state in ["Johor", "Selangor"]
+            if state in available_states
+        ],
+        key="dist_states"
+    )
+
+    # Select measurement
+    dist_measure = st.selectbox(
+        "Select Measurement for Percentile Analysis",
+        ["mean", "median"],
+        key="dist_measure"
+    )
+
+    # Filter dataset
+    df_dist = df_income[
+        (df_income["year"] == dist_year) &
+        (df_income["state"].isin(dist_states)) &
+        (df_income["variable"] == dist_measure)
+    ].copy()
+
+    df_dist["income"] = pd.to_numeric(
+        df_dist["income"], errors="coerce"
+    )
+
+    df_dist["percentile"] = pd.to_numeric(
+        df_dist["percentile"], errors="coerce"
+    )
+
+    df_dist = df_dist.dropna(
+        subset=["income", "percentile"]
+    )
+
+    # Create interactive grouped bar chart
+    if not df_dist.empty:
+        df_dist = df_dist.sort_values("percentile")
+
+        fig_dist = px.bar(
+            df_dist,
+            x="percentile",
+            y="income",
+            color="state",
+            barmode="group",
+            title=f"Household Income by Percentile ({dist_year})",
+            labels={
+                "percentile": "Income Percentile",
+                "income": "Household Income (RM)",
+                "state": "State"
+            },
+            hover_data=["variable"]
+        )
+
+        fig_dist.update_layout(
+            template="plotly_dark",
+            xaxis=dict(
+                tickmode="array",
+                tickvals=sorted(df_dist["percentile"].unique())
+            ),
+            yaxis_title="Household Income (RM)",
+            legend_title="State",
+            height=600
+        )
+
+        st.plotly_chart(
+            fig_dist,
+            use_container_width=True
+        )
+
+    else:
+        st.warning(
+            "No data available for selected filters."
+        )
+
+
