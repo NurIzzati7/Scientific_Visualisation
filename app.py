@@ -522,6 +522,7 @@ if percentile_mode.startswith("Key Percentiles"):
     )
     st.dataframe(df_dist.head(10))
 
+   
     # Create interactive bar chart
     fig_dist = px.bar(
         df_dist,
@@ -538,22 +539,22 @@ if percentile_mode.startswith("Key Percentiles"):
         hover_data=["variable"]
     )
 
+    fig_dist.update_layout(
+        template="plotly_dark",
+        xaxis=dict(
+            tickmode="array",
+            tickvals=sorted(df_dist["percentile"].unique())
+        ),
+        yaxis_title="Household Income (RM)",
+        legend_title="State",
+        height=600
+    )
 
-        fig_dist.update_layout(
-            template="plotly_dark",
-            xaxis=dict(
-                tickmode="array",
-                tickvals=sorted(df_dist["percentile"].unique())
-            ),
-            yaxis_title="Household Income (RM)",
-            legend_title="State",
-            height=600
-        )
+    st.plotly_chart(
+        fig_dist,
+        use_container_width=True
+    )
 
-        st.plotly_chart(
-            fig_dist,
-            use_container_width=True
-        )
 
     else:
         st.warning(
