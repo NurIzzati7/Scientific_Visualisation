@@ -619,6 +619,7 @@ elif page == "Life Expectancy Analysis":
 
     
 
+
 # Household Income Analysis Page
 elif page == "Household Income Analysis":
     st.header("Household Income Analysis")
@@ -660,17 +661,13 @@ elif page == "Household Income Analysis":
 
         return data.dropna(
             subset=[
-                "year",
-                "state",
-                "percentile",
-                "variable",
-                "income"
+                "year", "state", "percentile",
+                "variable", "income"
             ]
         )
 
     df_income = load_income_data(data_path)
 
-    
     # Data Filters
     st.subheader("Data Filters")
 
@@ -684,12 +681,17 @@ elif page == "Household Income Analysis":
         index=len(years) - 1
     )
 
-    states = sorted(df_income["state"].unique().tolist())
+    states = sorted(
+        df_income["state"].unique().tolist()
+    )
 
     selected_states = st.multiselect(
         "Select State(s)",
         states,
-        default=states
+        default=[
+            s for s in ["Johor", "Selangor", "Melaka"]
+            if s in states
+        ]
     )
 
     measures = sorted(
@@ -709,21 +711,9 @@ elif page == "Household Income Analysis":
         "Select Percentile Display",
         [
             "Key Percentiles (P10, P25, P50, P75, P90)",
-            "All Percentiles (P1–P100)"
+            "All Percentiles (P1-P100)"
         ]
     )
-
-    # Debug: Check measurement values
-    with st.expander("Check Income Measurement Data"):
-        st.write("Selected Measurement:", selected_measure)
-
-        comparison = df_income[
-            (df_income["year"] == selected_year)
-            & (df_income["state"] == "Johor")
-            & (df_income["percentile"] == 50)
-        ][["variable", "income"]]
-
-        st.dataframe(comparison)
 
     # Filter dataset
     filtered = df_income[
@@ -734,77 +724,84 @@ elif page == "Household Income Analysis":
 
     if percentile_mode.startswith("Key Percentiles"):
         filtered = filtered[
-            filtered["percentile"].isin([10, 25, 50, 75, 90])
-        ]
+            filtered["percentile"].isin(
+                [10, 25, 50, 75, 90]
+            )
+        ].copy()
     else:
         filtered = filtered[
             filtered["percentile"].between(1, 100)
-        ]
+        ].copy()
 
     if filtered.empty:
         st.warning(
-            "No data available for the selected filters."
+            "No data available for the selected filters. "
+            "Please choose another year, state, "
+            "measurement or percentile display."
         )
 
     else:
-        # Check selected measurement and income values
-        st.write("Selected Measurement:", selected_measure)
-
-        st.write(
-            "Income Range (RM):",
-            f"{filtered['income'].min():,.2f}",
-            "to",
-            f"{filtered['income'].max():,.2f}"
+        # Prepare bubble chart data
+        chart_data = (
+            filtered.groupby(
+                ["state", "percentile"], as_index=False
+            )["income"].mean()
+            .sort_values(["state", "percentile"])
         )
 
-        # Prepare heatmap data
-        heatmap_data = filtered.pivot_table(
-            index="state",
-            columns="percentile",
-            values="income",
-            aggfunc="mean"
-        )
-
-        heatmap_data = heatmap_data.reindex(
-            selected_states
-        )
-
-        # One Interactive Heatmap
+        # One Interactive Bubble Chart
         st.subheader(
-            "Household Income Distribution Across States"
+            "Household Income Distribution by Percentile"
         )
 
-        fig = px.imshow(
-            heatmap_data,
-            aspect="auto",
-            color_continuous_scale="Blues",
+        fig = px.scatter(
+            chart_data,
+            x="percentile",
+            y="income",
+            color="state",
+            size="income",
+            size_max=35,
             title=(
                 "Household Income by State and Percentile "
                 f"({selected_year})"
             ),
             labels={
-                "x": "Income Percentile",
-                "y": "State",
-                "color": "Income (RM)"
+                "percentile": "Income Percentile",
+                "income": "Household Income (RM)",
+                "state": "State"
+            },
+            hover_data={
+                "state": True,
+                "percentile": True,
+                "income": ":,.2f"
             }
         )
 
-        # Show exact income values when hovering over heatmap
         fig.update_traces(
-            hovertemplate=(
-                "State: %{y}<br>"
-                "Income Percentile: P%{x}<br>"
-                "Household Income: RM %{z:,.2f}"
-                "<extra></extra>"
+            marker=dict(
+                opacity=0.7,
+                line=dict(width=1)
             )
         )
 
         fig.update_layout(
             template="plotly_dark",
             height=650,
+            legend_title_text="State",
             xaxis_title="Income Percentile",
-            yaxis_title="State"
+            yaxis_title="Household Income (RM)"
         )
+
+        if percentile_mode.startswith("Key Percentiles"):
+            fig.update_xaxes(
+                tickmode="array",
+                tickvals=[10, 25, 50, 75, 90]
+            )
+        else:
+            fig.update_xaxes(
+                range=[0, 101],
+                dtick=10
+            )
 
         st.plotly_chart(
             fig,
@@ -819,32 +816,33 @@ elif page == "Household Income Analysis":
         with col1:
             st.metric(
                 "States Selected",
-                filtered["state"].nunique()
+                chart_data["state"].nunique()
             )
 
         with col2:
             st.metric(
                 "Percentiles Displayed",
-                filtered["percentile"].nunique()
+                chart_data["percentile"].nunique()
             )
 
         with col3:
             st.metric(
                 "Highest Household Income",
-                f"RM {filtered['income'].max():,.2f}"
+                f"RM {chart_data['income'].max():,.2f}"
             )
 
         # Interpretation
         st.subheader("Interpretation")
 
         st.write(
-            "The heatmap illustrates household income "
-            "distribution across selected Malaysian states "
-            "and income percentiles. Darker colour intensities "
-            "represent higher household income values, "
-            "while lighter colours indicate lower values. "
-            "Users can explore income differences across "
-            "different years through the interactive filters."
+            "The interactive bubble chart illustrates "
+            "household income differences across selected "
+            "Malaysian states and income percentiles. "
+            "The position and size of each bubble represent "
+            "the household income value, while different "
+            "colours distinguish states. Users can explore "
+            "changes across different years and income "
+            "measurements using the available filters."
         )
 
         st.caption(
