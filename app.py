@@ -247,12 +247,25 @@ if page == "Home":
 
 
 
+
 # Maternal Death Page
 elif page == "Maternal Death Analysis":
     st.header("Maternal Death Analysis")
     st.write("Analysis Period: 2000–2025")
 
-    data_path = Path(__file__).resolve().parent / "datasets" / "death_maternal_state.csv"
+    # Objective Statement
+    st.info(
+        "Objective: To analyse the distribution and trends "
+        "of maternal mortality across Malaysian states."
+    )
+
+    # Load dataset
+    data_path = (
+        Path(__file__).resolve().parent
+        / "datasets"
+        / "death_maternal_state.csv"
+    )
+
     if not data_path.exists():
         st.error("Dataset not found: datasets/death_maternal_state.csv")
         st.stop()
@@ -260,37 +273,140 @@ elif page == "Maternal Death Analysis":
     @st.cache_data
     def load_maternal_data(path):
         data = pd.read_csv(path)
-        data["year"] = pd.to_datetime(data["date"], errors="coerce").dt.year
-        return data.dropna(subset=["state", "year"])
+        data["year"] = pd.to_datetime(
+            data["date"], errors="coerce"
+        ).dt.year
+
+        return data.dropna(
+            subset=["state", "year"]
+        )
 
     df = load_maternal_data(data_path)
-    states = sorted(df["state"].unique().tolist())
-    selected_states = st.multiselect("Select State(s)", states, default=states)
-    years = sorted(df["year"].astype(int).unique().tolist())
-    selected_years = st.slider("Select Year Range", min(years), max(years), (min(years), max(years)))
-    measure = st.selectbox("Measurement", ["abs", "rate"],
-                           format_func=lambda v: "Number of Maternal Deaths" if v == "abs" else "Maternal Death Rate")
-    filtered = df[df["state"].isin(selected_states) & df["year"].between(*selected_years)].copy()
-    if filtered.empty:
-        st.warning("No data for this selection. Choose another state or year range.")
-    else:
-        label = "Number of Maternal Deaths" if measure == "abs" else "Maternal Death Rate"
-        st.subheader("Maternal Death Trends")
-        fig = px.line(filtered.sort_values("year"), x="year", y=measure, color="state",
-                      markers=True, labels={"year": "Year", measure: label, "state": "State"})
-        st.plotly_chart(fig, use_container_width=True)
 
-        st.subheader("Maternal Deaths by State")
-        if measure == "abs":
-            totals = filtered.groupby("state", as_index=False)["abs"].sum().sort_values("abs")
-            bar = px.bar(totals, x="abs", y="state", orientation="h",
-                         labels={"abs": "Total Maternal Deaths", "state": "State"})
-            st.plotly_chart(bar, use_container_width=True)
-        else:
-            st.caption("Rates should not be summed across years; the chart below shows yearly rates.")
-            heat = filtered.pivot_table(index="state", columns="year", values="rate", aggfunc="mean")
-            fig_heat = px.imshow(heat, aspect="auto", labels={"x": "Year", "y": "State", "color": "Rate"})
-            st.plotly_chart(fig_heat, use_container_width=True)
+    # Filters
+    st.subheader("Data Filters")
+
+    states = sorted(df["state"].unique().tolist())
+
+    selected_states = st.multiselect(
+        "Select State(s)",
+        states,
+        default=states
+    )
+
+    years = sorted(
+        df["year"].astype(int).unique().tolist()
+    )
+
+    selected_years = st.slider(
+        "Select Year Range",
+        min(years),
+        max(years),
+        (min(years), max(years))
+    )
+
+    measure = st.selectbox(
+        "Measurement",
+        ["abs", "rate"],
+        format_func=lambda v:
+            "Number of Maternal Deaths"
+            if v == "abs"
+            else "Maternal Death Rate"
+    )
+
+    # Filter dataset
+    filtered = df[
+        df["state"].isin(selected_states)
+        & df["year"].between(*selected_years)
+    ].copy()
+
+    if filtered.empty:
+        st.warning(
+            "No data for this selection. "
+            "Choose another state or year range."
+        )
+
+    else:
+        label = (
+            "Number of Maternal Deaths"
+            if measure == "abs"
+            else "Maternal Death Rate"
+        )
+
+        # Visualization 1: Interactive Line Chart
+        st.subheader("Maternal Death Trends by State")
+
+        chart_data = (
+            filtered.groupby(
+                ["state", "year"], as_index=False
+            )[measure].mean()
+            .sort_values("year")
+        )
+
+        fig = px.line(
+            chart_data,
+            x="year",
+            y=measure,
+            color="state",
+            markers=True,
+            labels={
+                "year": "Year",
+                measure: label,
+                "state": "State"
+            },
+            title="Maternal Mortality Trends Across Malaysian States"
+        )
+
+        fig.update_layout(
+            hovermode="x unified",
+            legend_title_text="State"
+        )
+
+        st.plotly_chart(
+            fig,
+            use_container_width=True
+        )
+
+        # Summary Box
+        st.subheader("Summary Box")
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            st.metric(
+                "States Selected",
+                filtered["state"].nunique()
+            )
+
+        with col2:
+            st.metric(
+                "Years Covered",
+                filtered["year"].nunique()
+            )
+
+        with col3:
+            st.metric(
+                "Highest Observed Value",
+                f"{chart_data[measure].max():,.2f}"
+            )
+
+        # Interpretation
+        st.subheader("Interpretation")
+
+        st.write(
+            "The line chart illustrates changes in maternal "
+            "mortality across selected Malaysian states over "
+            "the chosen period. It allows comparisons of "
+            "mortality patterns between states and highlights "
+            "fluctuations over time. Differences between "
+            "the lines indicate variations in the selected "
+            "maternal mortality measurement across states."
+        )
+
+        st.caption(
+            "Source: Department of Statistics Malaysia (DOSM)"
+        )
+
 
 # Life Expectancy Page
 elif page == "Life Expectancy Analysis":
