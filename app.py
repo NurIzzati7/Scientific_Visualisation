@@ -312,28 +312,30 @@ if page == "Home":
     st.write("")
     st.divider()
 
+   
     # =========================
     # ABOUT THIS PROJECT
     # =========================
     st.subheader("ℹ️ About This Project")
 
-    home_html("""
-    <div class="home-about">
-        This dashboard was developed using
-        <strong>Python, Streamlit, and Plotly</strong>
-        to visualise three Malaysian datasets from
-        the Department of Statistics Malaysia (DOSM).
-
-        <p>
-            It includes an interactive line chart for maternal deaths,
-            a grouped bar chart for life expectancy, and a bubble chart
-            for household income.
-        </p>
-
+    st.markdown("""
+<div class="home-about">
+    This dashboard was developed using
+    <strong>Python, Streamlit, and Plotly</strong>
+    to visualise three Malaysian datasets from
+    the Department of Statistics Malaysia (DOSM).
+    <p>
+        It includes an interactive line chart for maternal deaths,
+        a grouped bar chart for life expectancy, and a bubble chart
+        for household income.
+    </p>
+    <p>
         Users can select different states, years, and other filters
         to explore the data and compare the results.
-    </div>
-    """)
+    </p>
+</div>
+""", unsafe_allow_html=True)
+
 
     # =========================
     # NAVIGATION GUIDE
