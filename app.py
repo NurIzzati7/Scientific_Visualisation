@@ -11,18 +11,109 @@ st.set_page_config(
 )
 
 
-# Sidebar navigation
-st.sidebar.title("Navigation")
+# =========================
+# SIDEBAR STYLING
+# =========================
+st.markdown("""
+<style>
 
-page = st.sidebar.radio(
-    "Select Analysis",
-    [
-        "Home",
-        "Maternal Death Analysis",
-        "Life Expectancy Analysis",
-        "Household Income Analysis"
-    ]
-)
+/* Sidebar background */
+[data-testid="stSidebar"] {
+    background: linear-gradient(
+        180deg, #0f172a 0%, #172554 100%
+    );
+    border-right: 1px solid #334155;
+}
+
+/* Sidebar title */
+[data-testid="stSidebar"] h2 {
+    color: #f8fafc;
+    font-weight: 700;
+}
+
+/* Sidebar text */
+[data-testid="stSidebar"] p,
+[data-testid="stSidebar"] label {
+    color: #cbd5e1;
+}
+
+/* Radio navigation items */
+[data-testid="stSidebar"] [role="radiogroup"] label {
+    padding: 10px 12px;
+    border-radius: 10px;
+    margin-bottom: 7px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    transition: all 0.2s ease;
+}
+
+/* Hover effect */
+[data-testid="stSidebar"] [role="radiogroup"] label:hover {
+    background: #334155;
+    border-color: #14b8a6;
+}
+
+/* Selected navigation item */
+[data-testid="stSidebar"]
+[role="radiogroup"] label:has(input:checked) {
+    background: #134e4a;
+    border-color: #2dd4bf;
+}
+
+/* Selected text */
+[data-testid="stSidebar"]
+[role="radiogroup"] label:has(input:checked) p {
+    color: #ccfbf1;
+    font-weight: 600;
+}
+
+/* Radio button accent */
+[data-testid="stSidebar"] input[type="radio"] {
+    accent-color: #2dd4bf;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
+# =========================
+# SIDEBAR NAVIGATION
+# =========================
+with st.sidebar:
+
+    st.markdown("## 📊 Malaysia Insights")
+
+    st.caption(
+        "Socioeconomic & Health Dashboard"
+    )
+
+    st.divider()
+
+    page = st.radio(
+        "🧭 Select Analysis",
+        [
+            "Home",
+            "Maternal Death Analysis",
+            "Life Expectancy Analysis",
+            "Household Income Analysis"
+        ],
+        index=0
+    )
+
+    st.divider()
+
+    st.markdown("### 📌 Dashboard Information")
+
+    st.caption(
+        "Explore three Malaysian datasets "
+        "using interactive visualisations."
+    )
+
+    st.markdown("**Data Source:** DOSM")
+
+    st.caption(
+        "Built with Python, Streamlit & Plotly"
+    )
 
 
 
