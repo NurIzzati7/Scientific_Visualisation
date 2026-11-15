@@ -25,157 +25,254 @@ page = st.sidebar.radio(
 
 
 
+
 if page == "Home":
 
-    # HOME PAGE STYLING
+    # =========================
+    # HOME PAGE CSS
+    # =========================
     st.markdown("""
     <style>
     .home-hero {
-        background: linear-gradient(120deg, #172554, #1e293b);
-        padding: 32px;
-        border-radius: 16px;
-        border: 1px solid #334155;
-        margin-bottom: 25px;
+        background: linear-gradient(
+            120deg, #0f172a 0%, #164e63 60%, #0f766e 100%
+        );
+        padding: 42px 35px;
+        border-radius: 20px;
+        border: 1px solid #155e75;
+        margin-bottom: 30px;
+    }
+
+    .home-eyebrow {
+        color: #99f6e4;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 2px;
+        margin-bottom: 12px;
     }
 
     .home-hero h1 {
         color: #ffffff;
-        font-size: 34px;
-        margin-bottom: 12px;
+        font-size: clamp(26px, 3vw, 38px);
+        font-weight: 750;
+        line-height: 1.3;
+        margin-bottom: 15px;
     }
 
     .home-hero p {
         color: #cbd5e1;
         font-size: 16px;
-        margin-bottom: 0;
+        line-height: 1.8;
+        margin: 0;
     }
 
     .home-kpi {
-        background: #1e293b;
-        padding: 24px;
-        border-radius: 14px;
+        background: linear-gradient(145deg, #1e293b, #172033);
+        padding: 25px 15px;
+        border-radius: 16px;
         border: 1px solid #334155;
         text-align: center;
-        min-height: 140px;
+        min-height: 155px;
+        transition: transform 0.25s ease;
+    }
+
+    .home-kpi:hover {
+        transform: translateY(-4px);
+        border-color: #14b8a6;
+    }
+
+    .home-kpi-icon {
+        font-size: 27px;
+        margin-bottom: 8px;
     }
 
     .home-kpi-value {
-        color: #ffffff;
-        font-size: 32px;
-        font-weight: 700;
+        color: #f8fafc;
+        font-size: 30px;
+        font-weight: 750;
     }
 
     .home-kpi-label {
         color: #94a3b8;
         font-size: 14px;
+        margin-top: 5px;
     }
 
     .home-dataset {
         background: #1e293b;
-        padding: 22px;
-        border-radius: 14px;
+        padding: 25px 22px;
+        border-radius: 16px;
         border: 1px solid #334155;
-        min-height: 215px;
+        min-height: 265px;
+        transition: all 0.25s ease;
+    }
+
+    .home-dataset:hover {
+        transform: translateY(-5px);
+        border-color: #64748b;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.18);
+    }
+
+    .home-dataset-icon {
+        font-size: 32px;
+        margin-bottom: 12px;
     }
 
     .home-dataset h3 {
-        color: #ffffff;
+        color: #f8fafc;
         font-size: 21px;
-        margin-bottom: 10px;
+        margin-bottom: 14px;
     }
 
     .home-dataset p {
         color: #cbd5e1;
         font-size: 14px;
+        line-height: 1.7;
+        margin-top: 15px;
     }
 
     .home-tag {
         display: inline-block;
-        padding: 5px 12px;
+        padding: 6px 12px;
         border-radius: 20px;
         font-size: 12px;
-        margin-bottom: 12px;
+        font-weight: 600;
+        line-height: 1.5;
     }
 
     .home-about {
         background: #1e293b;
-        padding: 22px;
-        border-radius: 14px;
+        padding: 26px;
+        border-radius: 16px;
         border: 1px solid #334155;
         color: #cbd5e1;
+        font-size: 15px;
+        line-height: 1.9;
+    }
+
+    .home-about strong {
+        color: #5eead4;
+    }
+
+    .home-guide {
+        background: #134e4a;
+        border-left: 4px solid #2dd4bf;
+        border-radius: 12px;
+        padding: 18px 22px;
+        color: #ccfbf1;
+        font-size: 14px;
+        margin-top: 22px;
     }
 
     .home-footer {
         text-align: center;
         color: #94a3b8;
         font-size: 13px;
-        padding: 18px;
+        padding: 25px 10px;
+        margin-top: 20px;
+        border-top: 1px solid #334155;
+    }
+
+    @media (max-width: 768px) {
+        .home-hero {
+            padding: 28px 20px;
+        }
+
+        .home-dataset {
+            min-height: auto;
+        }
+
+        .home-kpi {
+            min-height: auto;
+        }
     }
     </style>
     """, unsafe_allow_html=True)
 
+    # =========================
     # HERO SECTION
+    # =========================
     st.markdown("""
     <div class="home-hero">
-        <h1>📊 Malaysia Socioeconomic & Health Insights Dashboard</h1>
+        <div class="home-eyebrow">
+            MALAYSIA DATA ANALYTICS
+        </div>
+
+        <h1>
+            📊 Malaysia Socioeconomic
+            &amp; Health Insights
+        </h1>
+
         <p>
-            Interactive Data Analytics Dashboard | Malaysia
-        </p>
-        <p style="margin-top: 12px;">
-            Explore maternal health, life expectancy, and
-            household income through interactive visualisations.
+            An interactive dashboard for exploring
+            maternal deaths, life expectancy,
+            and household income across Malaysia.
         </p>
     </div>
     """, unsafe_allow_html=True)
 
+    # =========================
     # DASHBOARD OVERVIEW
+    # =========================
     st.subheader("📌 Dashboard Overview")
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3 = st.columns(3, gap="medium")
 
     with col1:
         st.markdown("""
         <div class="home-kpi">
+            <div class="home-kpi-icon">📁</div>
             <div class="home-kpi-value">3</div>
-            <div class="home-kpi-label">📁 Datasets</div>
+            <div class="home-kpi-label">Datasets</div>
         </div>
         """, unsafe_allow_html=True)
 
     with col2:
         st.markdown("""
         <div class="home-kpi">
+            <div class="home-kpi-icon">📊</div>
             <div class="home-kpi-value">3</div>
-            <div class="home-kpi-label">📊 Visualisations</div>
+            <div class="home-kpi-label">Visualisations</div>
         </div>
         """, unsafe_allow_html=True)
 
     with col3:
         st.markdown("""
         <div class="home-kpi">
+            <div class="home-kpi-icon">📍</div>
             <div class="home-kpi-value">Malaysia</div>
-            <div class="home-kpi-label">📍 Data Coverage</div>
+            <div class="home-kpi-label">Data Coverage</div>
         </div>
         """, unsafe_allow_html=True)
 
     st.write("")
     st.divider()
 
+    # =========================
     # DATASET CARDS
+    # =========================
     st.subheader("🔎 Explore the Datasets")
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3 = st.columns(3, gap="medium")
 
     with col1:
         st.markdown("""
         <div class="home-dataset"
-             style="border-top: 4px solid #f87171;">
-            <h3>🩺 Maternal Death</h3>
+             style="border-top: 4px solid #fb7185;">
+
+            <div class="home-dataset-icon">🩺</div>
+
+            <h3>Maternal Death</h3>
+
             <span class="home-tag"
-                  style="background:#450a0a;color:#fca5a5;">
-                2000–2025 | Interactive Line Chart
+                  style="background:#4c0519;color:#fda4af;">
+                2000–2025 | Line Chart
             </span>
+
             <p>
-              Explore maternal mortality trends and differences across Malaysian states over time.
+                Explore maternal death trends and
+                compare the number of deaths
+                across Malaysian states.
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -183,14 +280,22 @@ if page == "Home":
     with col2:
         st.markdown("""
         <div class="home-dataset"
-             style="border-top: 4px solid #60a5fa;">
-            <h3>👥 Life Expectancy</h3>
+             style="border-top: 4px solid #38bdf8;">
+
+            <div class="home-dataset-icon">👥</div>
+
+            <h3>Life Expectancy</h3>
+
             <span class="home-tag"
-                  style="background:#172554;color:#93c5fd;">
-                2022–2026 | Interactive Grouped Bar Chart
+                  style="background:#082f49;color:#7dd3fc;">
+                2022–2026 | Grouped Bar Chart
             </span>
+
             <p>
-                Compare life expectancy across Malaysian states by gender and ethnicity, with interactive year selection.
+                Compare life expectancy by gender,
+                ethnicity, and state using
+                interactive year selection.
+            </p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -198,13 +303,20 @@ if page == "Home":
         st.markdown("""
         <div class="home-dataset"
              style="border-top: 4px solid #34d399;">
-            <h3>💰 Household Income</h3>
+
+            <div class="home-dataset-icon">💰</div>
+
+            <h3>Household Income</h3>
+
             <span class="home-tag"
                   style="background:#064e3b;color:#a7f3d0;">
-                2019, 2022 & 2024 | Interactive Bubble Chart
+                2019, 2022, 2024 | Bubble Chart
             </span>
+
             <p>
-               Explore household income differences across states and income percentiles using interactive year selection.
+                Explore household income differences
+                across states and income percentiles
+                using interactive filters.
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -212,30 +324,53 @@ if page == "Home":
     st.write("")
     st.divider()
 
-    # ABOUT PROJECT
+    # =========================
+    # ABOUT THIS PROJECT
+    # =========================
     st.subheader("ℹ️ About This Project")
 
     st.markdown("""
     <div class="home-about">
-        This dashboard was developed using Python, Streamlit, and Plotly to visualise three Malaysian datasets sourced from the Department of Statistics Malaysia (DOSM). It features three interactive visualisations: a line chart for maternal mortality, a grouped bar chart for life expectancy, and a bubble chart for household income. The dashboard supports data exploration and comparisons across Malaysian states, demographic groups, years, and income percentiles.
+
+        This dashboard was developed using
+        <strong>Python, Streamlit, and Plotly</strong>
+        to visualise three Malaysian datasets
+        from the Department of Statistics Malaysia (DOSM).
+
+        <p style="margin-top:14px;">
+            It includes an interactive line chart
+            for maternal deaths, a grouped bar chart
+            for life expectancy, and a bubble chart
+            for household income.
+        </p>
+
+        Users can select different states, years,
+        and other filters to explore the data
+        and compare the results.
+
     </div>
     """, unsafe_allow_html=True)
 
-    st.write("")
+    # =========================
+    # NAVIGATION GUIDE
+    # =========================
+    st.markdown("""
+    <div class="home-guide">
+        👈 <strong>Get Started:</strong>
+        Select an analysis from the sidebar
+        to explore the interactive visualisations.
+    </div>
+    """, unsafe_allow_html=True)
 
-    st.info(
-        "👈 Select an analysis from the sidebar "
-        "to explore the interactive visualisations."
-    )
-
+    # =========================
     # FOOTER
+    # =========================
     st.markdown("""
     <div class="home-footer">
         Data Source: DOSM |
-        Built with Python, Streamlit & Plotly
+        Developed with Python, Streamlit &amp; Plotly
     </div>
     """, unsafe_allow_html=True)
-
 
 
 
