@@ -1082,21 +1082,115 @@ elif page == "Life Expectancy Analysis":
             unsafe_allow_html=True
         )
 
-    
 
-
-# Household Income Analysis Page
+# =========================
+# HOUSEHOLD INCOME ANALYSIS
+# =========================
 elif page == "Household Income Analysis":
-    st.header("Household Income Analysis")
 
-    # Objective Statement
-    st.info(
-        "Objective: To analyse household income distribution, "
-        "trends, and differences across Malaysian states "
-        "and income percentiles."
+    # =========================
+    # PAGE STYLING
+    # =========================
+    st.markdown("""
+    <style>
+    .income-hero {
+        background: linear-gradient(120deg, #0f172a, #164e63);
+        padding: 30px;
+        border-radius: 18px;
+        border: 1px solid #155e75;
+        margin-bottom: 22px;
+    }
+
+    .income-hero h1 {
+        color: #ffffff;
+        font-size: 32px;
+        margin: 0 0 10px 0;
+    }
+
+    .income-hero p {
+        color: #cbd5e1;
+        font-size: 15px;
+        margin: 0;
+    }
+
+    .income-objective {
+        background: #134e4a;
+        border-left: 4px solid #2dd4bf;
+        padding: 18px 22px;
+        border-radius: 12px;
+        color: #ccfbf1;
+        font-size: 15px;
+        line-height: 1.7;
+        margin-bottom: 20px;
+    }
+
+    .income-kpi {
+        background: #1e293b;
+        padding: 22px 15px;
+        border: 1px solid #334155;
+        border-radius: 14px;
+        text-align: center;
+        min-height: 125px;
+    }
+
+    .income-kpi-label {
+        color: #94a3b8;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+    .income-kpi-value {
+        color: #ffffff;
+        font-size: 29px;
+        font-weight: 700;
+    }
+
+    .income-note {
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 14px;
+        padding: 22px;
+        color: #cbd5e1;
+        font-size: 15px;
+        line-height: 1.8;
+    }
+
+    .income-footer {
+        color: #94a3b8;
+        font-size: 13px;
+        text-align: center;
+        margin-top: 25px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # =========================
+    # PAGE HEADER
+    # =========================
+    st.markdown(
+        '<div class="income-hero">'
+        '<h1>💰 Household Income Analysis</h1>'
+        '<p>Exploring household income distribution across Malaysian states | 2019, 2022 &amp; 2024</p>'
+        '</div>',
+        unsafe_allow_html=True
     )
 
-    # Dataset path
+    # =========================
+    # OBJECTIVE
+    # =========================
+    st.markdown(
+        '<div class="income-objective">'
+        '<strong>🎯 Objective:</strong> '
+        'To analyse household income distribution, trends, '
+        'and differences across Malaysian states '
+        'and income percentiles.'
+        '</div>',
+        unsafe_allow_html=True
+    )
+
+    # =========================
+    # LOAD DATASET
+    # =========================
     data_path = (
         Path(__file__).resolve().parent
         / "datasets"
@@ -1107,7 +1201,6 @@ elif page == "Household Income Analysis":
         st.error("Household income dataset not found.")
         st.stop()
 
-    # Load and prepare dataset
     @st.cache_data
     def load_income_data(path):
         data = pd.read_csv(path)
@@ -1133,8 +1226,10 @@ elif page == "Household Income Analysis":
 
     df_income = load_income_data(data_path)
 
-    # Data Filters
-    st.subheader("Data Filters")
+    # =========================
+    # DATA FILTERS
+    # =========================
+    st.subheader("⚙️ Data Filters")
 
     years = sorted(
         df_income["year"].astype(int).unique().tolist()
@@ -1150,12 +1245,19 @@ elif page == "Household Income Analysis":
         df_income["state"].unique().tolist()
     )
 
+    default_states = [
+        "Johor",
+        "Selangor",
+        "Melaka",
+        "Kedah",
+        "Sarawak"
+    ]
+
     selected_states = st.multiselect(
         "Select State(s)",
         states,
         default=[
-            s for s in ["Johor", "Selangor", "Melaka"]
-            if s in states
+            s for s in default_states if s in states
         ]
     )
 
@@ -1180,7 +1282,9 @@ elif page == "Household Income Analysis":
         ]
     )
 
-    # Filter dataset
+    # =========================
+    # FILTER DATASET
+    # =========================
     filtered = df_income[
         (df_income["year"] == selected_year)
         & df_income["state"].isin(selected_states)
@@ -1206,7 +1310,10 @@ elif page == "Household Income Analysis":
         )
 
     else:
-        # Prepare bubble chart data
+
+        # =========================
+        # PREPARE CHART DATA
+        # =========================
         chart_data = (
             filtered.groupby(
                 ["state", "percentile"], as_index=False
@@ -1214,9 +1321,11 @@ elif page == "Household Income Analysis":
             .sort_values(["state", "percentile"])
         )
 
-        # One Interactive Bubble Chart
+        # =========================
+        # INTERACTIVE BUBBLE CHART
+        # =========================
         st.subheader(
-            "Household Income Distribution by Percentile"
+            "🫧 Household Income Distribution by Percentile"
         )
 
         fig = px.scatter(
@@ -1244,17 +1353,33 @@ elif page == "Household Income Analysis":
 
         fig.update_traces(
             marker=dict(
-                opacity=0.7,
-                line=dict(width=1)
+                opacity=0.75,
+                line=dict(
+                    width=1,
+                    color="#e2e8f0"
+                )
             )
         )
 
         fig.update_layout(
             template="plotly_dark",
+            paper_bgcolor="#0f172a",
+            plot_bgcolor="#0f172a",
+            font=dict(color="#e2e8f0"),
+            title_font=dict(size=18),
             height=650,
             legend_title_text="State",
-            xaxis_title="Income Percentile",
-            yaxis_title="Household Income (RM)"
+            margin=dict(l=30, r=30, t=65, b=40),
+            xaxis=dict(
+                title="Income Percentile",
+                gridcolor="#334155"
+            ),
+            yaxis=dict(
+                title="Household Income (RM)",
+                gridcolor="#334155",
+                tickprefix="RM ",
+                tickformat=","
+            )
         )
 
         if percentile_mode.startswith("Key Percentiles"):
@@ -1273,46 +1398,72 @@ elif page == "Household Income Analysis":
             use_container_width=True
         )
 
-        # Summary Box
-        st.subheader("Summary Box")
+        # =========================
+        # SUMMARY BOX
+        # =========================
+        st.subheader("📊 Summary Box")
 
         col1, col2, col3 = st.columns(3)
 
         with col1:
-            st.metric(
-                "States Selected",
-                chart_data["state"].nunique()
+            st.markdown(
+                '<div class="income-kpi">'
+                '<div class="income-kpi-label">📍 States Selected</div>'
+                f'<div class="income-kpi-value">{chart_data["state"].nunique()}</div>'
+                '</div>',
+                unsafe_allow_html=True
             )
 
         with col2:
-            st.metric(
-                "Percentiles Displayed",
-                chart_data["percentile"].nunique()
+            st.markdown(
+                '<div class="income-kpi">'
+                '<div class="income-kpi-label">📊 Percentiles Displayed</div>'
+                f'<div class="income-kpi-value">{chart_data["percentile"].nunique()}</div>'
+                '</div>',
+                unsafe_allow_html=True
             )
 
         with col3:
-            st.metric(
-                "Highest Household Income",
-                f"RM {chart_data['income'].max():,.2f}"
+            st.markdown(
+                '<div class="income-kpi">'
+                '<div class="income-kpi-label">🏆 Highest Household Income</div>'
+                f'<div class="income-kpi-value">RM {chart_data["income"].max():,.2f}</div>'
+                '</div>',
+                unsafe_allow_html=True
             )
 
-        # Interpretation
-        st.subheader("Interpretation")
+        # =========================
+        # INTERPRETATION
+        # =========================
+        st.subheader("💡 Interpretation")
 
-        st.write(
-            "The interactive bubble chart illustrates "
-            "household income differences across selected "
-            "Malaysian states and income percentiles. "
-            "The position and size of each bubble represent "
-            "the household income value, while different "
-            "colours distinguish states. Users can explore "
-            "changes across different years and income "
-            "measurements using the available filters."
+        interpretation = (
+            "The bubble chart shows household income differences "
+            "across selected Malaysian states and income percentiles. "
+            "Each bubble represents an income value, while its size "
+            "and position help users compare income levels. "
+            "Different colours represent different states. "
+            "Users can also explore changes across years "
+            "and income measurements using the filters."
         )
 
-        st.caption(
-            "Source: Department of Statistics Malaysia (DOSM)"
+        st.markdown(
+            '<div class="income-note">'
+            + interpretation +
+            '</div>',
+            unsafe_allow_html=True
         )
+
+        # =========================
+        # DATA SOURCE
+        # =========================
+        st.markdown(
+            '<div class="income-footer">'
+            'Data Source: Department of Statistics Malaysia (DOSM)'
+            '</div>',
+            unsafe_allow_html=True
+        )
+
 
 
 
