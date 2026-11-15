@@ -2,6 +2,7 @@ import streamlit as st
 from pathlib import Path
 import pandas as pd
 import plotly.express as px
+import textwrap
 
 st.set_page_config(
     page_title="Scientific Visualisation",
@@ -25,22 +26,19 @@ page = st.sidebar.radio(
 
 
 
-
 if page == "Home":
 
     # =========================
-    # HOME PAGE CSS
+    # HOME PAGE STYLING
     # =========================
     st.markdown("""
     <style>
     .home-hero {
-        background: linear-gradient(
-            120deg, #0f172a 0%, #164e63 60%, #0f766e 100%
-        );
-        padding: 42px 35px;
+        background: linear-gradient(120deg, #0f172a, #164e63, #0f766e);
+        padding: 40px 35px;
         border-radius: 20px;
         border: 1px solid #155e75;
-        margin-bottom: 30px;
+        margin-bottom: 28px;
     }
 
     .home-eyebrow {
@@ -63,7 +61,7 @@ if page == "Home":
         color: #cbd5e1;
         font-size: 16px;
         line-height: 1.8;
-        margin: 0;
+        margin-bottom: 0;
     }
 
     .home-kpi {
@@ -73,7 +71,7 @@ if page == "Home":
         border: 1px solid #334155;
         text-align: center;
         min-height: 155px;
-        transition: transform 0.25s ease;
+        transition: all 0.25s ease;
     }
 
     .home-kpi:hover {
@@ -87,9 +85,9 @@ if page == "Home":
     }
 
     .home-kpi-value {
-        color: #f8fafc;
+        color: #ffffff;
         font-size: 30px;
-        font-weight: 750;
+        font-weight: 700;
     }
 
     .home-kpi-label {
@@ -103,7 +101,7 @@ if page == "Home":
         padding: 25px 22px;
         border-radius: 16px;
         border: 1px solid #334155;
-        min-height: 265px;
+        min-height: 260px;
         transition: all 0.25s ease;
     }
 
@@ -119,7 +117,7 @@ if page == "Home":
     }
 
     .home-dataset h3 {
-        color: #f8fafc;
+        color: #ffffff;
         font-size: 21px;
         margin-bottom: 14px;
     }
@@ -152,6 +150,10 @@ if page == "Home":
 
     .home-about strong {
         color: #5eead4;
+    }
+
+    .home-about p {
+        margin-top: 14px;
     }
 
     .home-guide {
@@ -189,27 +191,26 @@ if page == "Home":
     </style>
     """, unsafe_allow_html=True)
 
+    # Helper function to render HTML correctly
+    def home_html(html):
+        st.markdown(
+            textwrap.dedent(html).strip(),
+            unsafe_allow_html=True
+        )
+
     # =========================
     # HERO SECTION
     # =========================
-    st.markdown("""
+    home_html("""
     <div class="home-hero">
-        <div class="home-eyebrow">
-            MALAYSIA DATA ANALYTICS
-        </div>
-
-        <h1>
-            📊 Malaysia Socioeconomic
-            &amp; Health Insights
-        </h1>
-
+        <div class="home-eyebrow">MALAYSIA DATA ANALYTICS</div>
+        <h1>📊 Malaysia Socioeconomic &amp; Health Insights</h1>
         <p>
-            An interactive dashboard for exploring
-            maternal deaths, life expectancy,
-            and household income across Malaysia.
+            An interactive dashboard for exploring maternal deaths,
+            life expectancy, and household income across Malaysia.
         </p>
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
     # =========================
     # DASHBOARD OVERVIEW
@@ -219,107 +220,94 @@ if page == "Home":
     col1, col2, col3 = st.columns(3, gap="medium")
 
     with col1:
-        st.markdown("""
+        home_html("""
         <div class="home-kpi">
             <div class="home-kpi-icon">📁</div>
             <div class="home-kpi-value">3</div>
             <div class="home-kpi-label">Datasets</div>
         </div>
-        """, unsafe_allow_html=True)
+        """)
 
     with col2:
-        st.markdown("""
+        home_html("""
         <div class="home-kpi">
             <div class="home-kpi-icon">📊</div>
             <div class="home-kpi-value">3</div>
             <div class="home-kpi-label">Visualisations</div>
         </div>
-        """, unsafe_allow_html=True)
+        """)
 
     with col3:
-        st.markdown("""
+        home_html("""
         <div class="home-kpi">
             <div class="home-kpi-icon">📍</div>
             <div class="home-kpi-value">Malaysia</div>
             <div class="home-kpi-label">Data Coverage</div>
         </div>
-        """, unsafe_allow_html=True)
+        """)
 
     st.write("")
     st.divider()
 
     # =========================
-    # DATASET CARDS
+    # EXPLORE DATASETS
     # =========================
     st.subheader("🔎 Explore the Datasets")
 
     col1, col2, col3 = st.columns(3, gap="medium")
 
     with col1:
-        st.markdown("""
+        home_html("""
         <div class="home-dataset"
              style="border-top: 4px solid #fb7185;">
-
             <div class="home-dataset-icon">🩺</div>
-
             <h3>Maternal Death</h3>
-
             <span class="home-tag"
                   style="background:#4c0519;color:#fda4af;">
                 2000–2025 | Line Chart
             </span>
-
             <p>
-                Explore maternal death trends and
-                compare the number of deaths
-                across Malaysian states.
+                Explore maternal death trends and compare
+                the number of deaths across Malaysian states.
             </p>
         </div>
-        """, unsafe_allow_html=True)
+        """)
 
     with col2:
-        st.markdown("""
+        home_html("""
         <div class="home-dataset"
              style="border-top: 4px solid #38bdf8;">
-
             <div class="home-dataset-icon">👥</div>
-
             <h3>Life Expectancy</h3>
-
             <span class="home-tag"
                   style="background:#082f49;color:#7dd3fc;">
                 2022–2026 | Grouped Bar Chart
             </span>
-
             <p>
                 Compare life expectancy by gender,
-                ethnicity, and state using
-                interactive year selection.
+                ethnicity, and state using interactive
+                year selection.
             </p>
         </div>
-        """, unsafe_allow_html=True)
+        """)
 
     with col3:
-        st.markdown("""
+        home_html("""
         <div class="home-dataset"
              style="border-top: 4px solid #34d399;">
-
             <div class="home-dataset-icon">💰</div>
-
             <h3>Household Income</h3>
-
             <span class="home-tag"
                   style="background:#064e3b;color:#a7f3d0;">
                 2019, 2022, 2024 | Bubble Chart
             </span>
-
             <p>
                 Explore household income differences
                 across states and income percentiles
                 using interactive filters.
             </p>
         </div>
-        """, unsafe_allow_html=True)
+        """)
 
     st.write("")
     st.divider()
@@ -329,48 +317,44 @@ if page == "Home":
     # =========================
     st.subheader("ℹ️ About This Project")
 
-    st.markdown("""
+    home_html("""
     <div class="home-about">
-
         This dashboard was developed using
         <strong>Python, Streamlit, and Plotly</strong>
-        to visualise three Malaysian datasets
-        from the Department of Statistics Malaysia (DOSM).
+        to visualise three Malaysian datasets from
+        the Department of Statistics Malaysia (DOSM).
 
-        <p style="margin-top:14px;">
-            It includes an interactive line chart
-            for maternal deaths, a grouped bar chart
-            for life expectancy, and a bubble chart
+        <p>
+            It includes an interactive line chart for maternal deaths,
+            a grouped bar chart for life expectancy, and a bubble chart
             for household income.
         </p>
 
-        Users can select different states, years,
-        and other filters to explore the data
-        and compare the results.
-
+        Users can select different states, years, and other filters
+        to explore the data and compare the results.
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
     # =========================
     # NAVIGATION GUIDE
     # =========================
-    st.markdown("""
+    home_html("""
     <div class="home-guide">
         👈 <strong>Get Started:</strong>
         Select an analysis from the sidebar
         to explore the interactive visualisations.
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
     # =========================
     # FOOTER
     # =========================
-    st.markdown("""
+    home_html("""
     <div class="home-footer">
         Data Source: DOSM |
         Developed with Python, Streamlit &amp; Plotly
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
 
 
