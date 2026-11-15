@@ -450,19 +450,105 @@ if page == "Home":
     """)
 
 
-
-# Maternal Death Page
+# =========================
+# MATERNAL DEATH ANALYSIS
+# =========================
 elif page == "Maternal Death Analysis":
-    st.header("Maternal Death Analysis")
-    st.write("Analysis Period: 2000–2025")
 
-    # Objective Statement
-    st.info(
-        "Objective: To analyse the distribution and trends "
-        "of maternal mortality across Malaysian states."
+    # PAGE STYLING
+    st.markdown("""
+    <style>
+    .analysis-hero {
+        background: linear-gradient(120deg, #0f172a, #164e63);
+        padding: 30px;
+        border-radius: 18px;
+        border: 1px solid #155e75;
+        margin-bottom: 22px;
+    }
+
+    .analysis-hero h1 {
+        color: #ffffff;
+        font-size: 32px;
+        margin: 0 0 10px 0;
+    }
+
+    .analysis-hero p {
+        color: #cbd5e1;
+        font-size: 15px;
+        margin: 0;
+    }
+
+    .analysis-objective {
+        background: #134e4a;
+        border-left: 4px solid #2dd4bf;
+        padding: 18px 22px;
+        border-radius: 12px;
+        color: #ccfbf1;
+        font-size: 15px;
+        line-height: 1.7;
+        margin-bottom: 20px;
+    }
+
+    .analysis-kpi {
+        background: #1e293b;
+        padding: 22px 15px;
+        border: 1px solid #334155;
+        border-radius: 14px;
+        text-align: center;
+        min-height: 125px;
+    }
+
+    .analysis-kpi-label {
+        color: #94a3b8;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+    .analysis-kpi-value {
+        color: #ffffff;
+        font-size: 29px;
+        font-weight: 700;
+    }
+
+    .analysis-note {
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 14px;
+        padding: 22px;
+        color: #cbd5e1;
+        font-size: 15px;
+        line-height: 1.8;
+    }
+
+    .analysis-footer {
+        color: #94a3b8;
+        font-size: 13px;
+        text-align: center;
+        margin-top: 25px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # PAGE HEADER
+    st.markdown(
+        '<div class="analysis-hero">'
+        '<h1>🩺 Maternal Death Analysis</h1>'
+        '<p>Exploring maternal death trends across Malaysian states | 2000–2025</p>'
+        '</div>',
+        unsafe_allow_html=True
     )
 
-    # Load dataset
+    # OBJECTIVE
+    st.markdown(
+        '<div class="analysis-objective">'
+        '<strong>🎯 Objective:</strong> '
+        'To analyse the distribution and trends of maternal mortality '
+        'across Malaysian states.'
+        '</div>',
+        unsafe_allow_html=True
+    )
+
+    # LOAD DATASET
     data_path = (
         Path(__file__).resolve().parent
         / "datasets"
@@ -486,8 +572,8 @@ elif page == "Maternal Death Analysis":
 
     df = load_maternal_data(data_path)
 
-    # Filters
-    st.subheader("Data Filters")
+    # DATA FILTERS
+    st.subheader("⚙️ Data Filters")
 
     states = sorted(df["state"].unique().tolist())
 
@@ -517,7 +603,7 @@ elif page == "Maternal Death Analysis":
             else "Maternal Death Rate"
     )
 
-    # Filter dataset
+    # FILTER DATASET
     filtered = df[
         df["state"].isin(selected_states)
         & df["year"].between(*selected_years)
@@ -536,8 +622,8 @@ elif page == "Maternal Death Analysis":
             else "Maternal Death Rate"
         )
 
-        # Visualization 1: Interactive Line Chart
-        st.subheader("Maternal Death Trends by State")
+        # LINE CHART
+        st.subheader("📈 Maternal Death Trends by State")
 
         chart_data = (
             filtered.groupby(
@@ -561,8 +647,22 @@ elif page == "Maternal Death Analysis":
         )
 
         fig.update_layout(
+            template="plotly_dark",
+            paper_bgcolor="#0f172a",
+            plot_bgcolor="#0f172a",
+            font=dict(color="#e2e8f0"),
+            title_font=dict(size=18),
             hovermode="x unified",
-            legend_title_text="State"
+            legend_title_text="State",
+            margin=dict(l=25, r=25, t=65, b=30),
+            xaxis=dict(
+                showgrid=False,
+                title="Year"
+            ),
+            yaxis=dict(
+                gridcolor="#334155",
+                title=label
+            )
         )
 
         st.plotly_chart(
@@ -570,44 +670,59 @@ elif page == "Maternal Death Analysis":
             use_container_width=True
         )
 
-        # Summary Box
-        st.subheader("Summary Box")
+        # SUMMARY BOX
+        st.subheader("📊 Summary Box")
 
         col1, col2, col3 = st.columns(3)
 
         with col1:
-            st.metric(
-                "States Selected",
-                filtered["state"].nunique()
+            st.markdown(
+                '<div class="analysis-kpi">'
+                '<div class="analysis-kpi-label">📍 States Selected</div>'
+                f'<div class="analysis-kpi-value">{filtered["state"].nunique()}</div>'
+                '</div>',
+                unsafe_allow_html=True
             )
 
         with col2:
-            st.metric(
-                "Years Covered",
-                filtered["year"].nunique()
+            st.markdown(
+                '<div class="analysis-kpi">'
+                '<div class="analysis-kpi-label">📅 Years Covered</div>'
+                f'<div class="analysis-kpi-value">{filtered["year"].nunique()}</div>'
+                '</div>',
+                unsafe_allow_html=True
             )
 
         with col3:
-            st.metric(
-                "Highest Observed Value",
-                f"{chart_data[measure].max():,.2f}"
+            st.markdown(
+                '<div class="analysis-kpi">'
+                '<div class="analysis-kpi-label">🏆 Highest Observed Value</div>'
+                f'<div class="analysis-kpi-value">{chart_data[measure].max():,.2f}</div>'
+                '</div>',
+                unsafe_allow_html=True
             )
 
-        # Interpretation
-        st.subheader("Interpretation")
+        # INTERPRETATION
+        st.subheader("💡 Interpretation")
 
-        st.write(
-            "The line chart illustrates changes in maternal "
-            "mortality across selected Malaysian states over "
-            "the chosen period. It allows comparisons of "
-            "mortality patterns between states and highlights "
-            "fluctuations over time. Differences between "
-            "the lines indicate variations in the selected "
-            "maternal mortality measurement across states."
+        st.markdown(
+            '<div class="analysis-note">'
+            'The line chart shows changes in maternal mortality '
+            'across selected Malaysian states over the chosen period. '
+            'Users can compare trends between states and identify '
+            'increases or decreases over time. Differences between '
+            'the lines show variations in the selected maternal '
+            'mortality measurement across states.'
+            '</div>',
+            unsafe_allow_html=True
         )
 
-        st.caption(
-            "Source: Department of Statistics Malaysia (DOSM)"
+        # DATA SOURCE
+        st.markdown(
+            '<div class="analysis-footer">'
+            'Data Source: Department of Statistics Malaysia (DOSM)'
+            '</div>',
+            unsafe_allow_html=True
         )
 
 
