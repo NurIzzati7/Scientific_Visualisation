@@ -727,17 +727,109 @@ elif page == "Maternal Death Analysis":
 
 
 
-# Life Expectancy Page
+# =========================
+# LIFE EXPECTANCY ANALYSIS
+# =========================
 elif page == "Life Expectancy Analysis":
-    st.header("Life Expectancy Analysis")
 
-    # Objective Statement
-    st.info(
-        "Objective: To examine variations in life expectancy "
-        "across Malaysian states based on gender, ethnicity, and time."
+    # PAGE STYLING
+    st.markdown("""
+    <style>
+    .life-hero {
+        background: linear-gradient(120deg, #0f172a, #164e63);
+        padding: 30px;
+        border-radius: 18px;
+        border: 1px solid #155e75;
+        margin-bottom: 22px;
+    }
+
+    .life-hero h1 {
+        color: #ffffff;
+        font-size: 32px;
+        margin: 0 0 10px 0;
+    }
+
+    .life-hero p {
+        color: #cbd5e1;
+        font-size: 15px;
+        margin: 0;
+    }
+
+    .life-objective {
+        background: #134e4a;
+        border-left: 4px solid #2dd4bf;
+        padding: 18px 22px;
+        border-radius: 12px;
+        color: #ccfbf1;
+        font-size: 15px;
+        line-height: 1.7;
+        margin-bottom: 20px;
+    }
+
+    .life-kpi {
+        background: #1e293b;
+        padding: 22px 15px;
+        border: 1px solid #334155;
+        border-radius: 14px;
+        text-align: center;
+        min-height: 125px;
+    }
+
+    .life-kpi-label {
+        color: #94a3b8;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+    .life-kpi-value {
+        color: #ffffff;
+        font-size: 29px;
+        font-weight: 700;
+    }
+
+    .life-note {
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 14px;
+        padding: 22px;
+        color: #cbd5e1;
+        font-size: 15px;
+        line-height: 1.8;
+    }
+
+    .life-footer {
+        color: #94a3b8;
+        font-size: 13px;
+        text-align: center;
+        margin-top: 25px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # =========================
+    # PAGE HEADER
+    # =========================
+    st.markdown(
+        '<div class="life-hero">'
+        '<h1>👥 Life Expectancy Analysis</h1>'
+        '<p>Comparing life expectancy across Malaysian states | 2022–2026</p>'
+        '</div>',
+        unsafe_allow_html=True
     )
 
-    # Dataset path
+    # OBJECTIVE
+    st.markdown(
+        '<div class="life-objective">'
+        '<strong>🎯 Objective:</strong> '
+        'To examine variations in life expectancy across '
+        'Malaysian states based on gender, ethnicity, and time.'
+        '</div>',
+        unsafe_allow_html=True
+    )
+
+    # =========================
+    # LOAD DATASET
+    # =========================
     data_path = (
         Path(__file__).resolve().parent
         / "datasets"
@@ -751,7 +843,6 @@ elif page == "Life Expectancy Analysis":
         )
         st.stop()
 
-    # Load and prepare data
     @st.cache_data
     def load_life_data(path):
         data = pd.read_csv(path)
@@ -776,9 +867,10 @@ elif page == "Life Expectancy Analysis":
 
     df_life = load_life_data(data_path)
 
-    
-    # Data Filters
-    st.subheader("Data Filters")
+    # =========================
+    # DATA FILTERS
+    # =========================
+    st.subheader("⚙️ Data Filters")
 
     years = sorted(
         df_life["year"].astype(int).unique().tolist()
@@ -792,12 +884,19 @@ elif page == "Life Expectancy Analysis":
 
     states = sorted(df_life["state"].unique().tolist())
 
+    default_states = [
+        "Johor",
+        "Selangor",
+        "Melaka",
+        "Kedah",
+        "Sarawak"
+    ]
+
     selected_states = st.multiselect(
         "Select State(s)",
         states,
         default=[
-            s for s in ["Johor", "Selangor", "Melaka"]
-            if s in states
+            s for s in default_states if s in states
         ]
     )
 
@@ -806,8 +905,11 @@ elif page == "Life Expectancy Analysis":
         ["Gender", "Ethnicity"]
     )
 
-    # Filter data according to comparison type
+    # =========================
+    # FILTER DATA
+    # =========================
     if comparison_type == "Gender":
+
         filtered = df_life[
             (df_life["year"] == selected_year)
             & df_life["state"].isin(selected_states)
@@ -816,11 +918,13 @@ elif page == "Life Expectancy Analysis":
         ].copy()
 
         category = "sex"
+
         chart_title = (
             f"Life Expectancy by State and Gender ({selected_year})"
         )
 
     else:
+
         filtered = df_life[
             (df_life["year"] == selected_year)
             & df_life["state"].isin(selected_states)
@@ -834,6 +938,7 @@ elif page == "Life Expectancy Analysis":
         ].copy()
 
         category = "ethnicity"
+
         chart_title = (
             f"Life Expectancy by State and Ethnicity ({selected_year})"
         )
@@ -856,15 +961,20 @@ elif page == "Life Expectancy Analysis":
         )
 
     else:
-        # Prepare chart data
+
+        # =========================
+        # PREPARE CHART DATA
+        # =========================
         chart_data = (
             filtered.groupby(
                 ["state", category], as_index=False
             )["life_expectancy"].mean()
         )
 
-        # One Interactive Grouped Bar Chart
-        st.subheader("Life Expectancy Comparison")
+        # =========================
+        # GROUPED BAR CHART
+        # =========================
+        st.subheader("📊 Life Expectancy Comparison")
 
         fig = px.bar(
             chart_data,
@@ -883,9 +993,22 @@ elif page == "Life Expectancy Analysis":
 
         fig.update_layout(
             template="plotly_dark",
-            xaxis_tickangle=-45,
+            paper_bgcolor="#0f172a",
+            plot_bgcolor="#0f172a",
+            font=dict(color="#e2e8f0"),
+            title_font=dict(size=18),
+            xaxis_tickangle=-30,
             legend_title_text=comparison_type,
-            height=600
+            height=580,
+            margin=dict(l=30, r=30, t=65, b=40),
+            xaxis=dict(
+                title="State",
+                showgrid=False
+            ),
+            yaxis=dict(
+                title="Life Expectancy (Years)",
+                gridcolor="#334155"
+            )
         )
 
         st.plotly_chart(
@@ -893,47 +1016,71 @@ elif page == "Life Expectancy Analysis":
             use_container_width=True
         )
 
-        # Summary Box
-        st.subheader("Summary Box")
+        # =========================
+        # SUMMARY BOX
+        # =========================
+        st.subheader("📊 Summary Box")
 
         col1, col2, col3 = st.columns(3)
 
         with col1:
-            st.metric(
-                "States Selected",
-                chart_data["state"].nunique()
+            st.markdown(
+                '<div class="life-kpi">'
+                '<div class="life-kpi-label">📍 States Selected</div>'
+                f'<div class="life-kpi-value">{chart_data["state"].nunique()}</div>'
+                '</div>',
+                unsafe_allow_html=True
             )
 
         with col2:
-            st.metric(
-                "Comparison Type",
-                comparison_type
+            st.markdown(
+                '<div class="life-kpi">'
+                '<div class="life-kpi-label">👥 Comparison Type</div>'
+                f'<div class="life-kpi-value">{comparison_type}</div>'
+                '</div>',
+                unsafe_allow_html=True
             )
 
         with col3:
-            st.metric(
-                "Highest Life Expectancy",
-                f"{chart_data['life_expectancy'].max():.1f} years"
+            st.markdown(
+                '<div class="life-kpi">'
+                '<div class="life-kpi-label">🏆 Highest Life Expectancy</div>'
+                f'<div class="life-kpi-value">{chart_data["life_expectancy"].max():.1f} years</div>'
+                '</div>',
+                unsafe_allow_html=True
             )
 
-        # Interpretation
-        st.subheader("Interpretation")
+        # =========================
+        # INTERPRETATION
+        # =========================
+        st.subheader("💡 Interpretation")
 
-        st.write(
+        interpretation = (
             "The grouped bar chart compares life expectancy "
             "across selected Malaysian states based on "
             f"{comparison_type.lower()} in {selected_year}. "
-            "The interactive filters allow users to examine "
-            "differences between demographic groups and "
-            "explore changes across different years. "
-            "The visualisation highlights variations in "
-            "life expectancy between states and population groups."
+            "Users can compare demographic groups and "
+            "explore differences between states. "
+            "The year filter also allows comparisons "
+            "across different years."
         )
 
-        st.caption(
-            "Source: Department of Statistics Malaysia (DOSM)"
+        st.markdown(
+            '<div class="life-note">'
+            + interpretation +
+            '</div>',
+            unsafe_allow_html=True
         )
 
+        # =========================
+        # DATA SOURCE
+        # =========================
+        st.markdown(
+            '<div class="life-footer">'
+            'Data Source: Department of Statistics Malaysia (DOSM)'
+            '</div>',
+            unsafe_allow_html=True
+        )
 
     
 
